@@ -282,30 +282,78 @@
   body.theme-dark {
     --bg:#0a0a0f; --surface:#13131a; --surface2:#1c1c27; --border:#2a2a3a;
     --accent:#7c6dfa; --accent2:#fa6d8a; --accent3:#6dfabc;
-    --text:#e8e8f0; --muted:#6b6b85;
+    --text:#e8e8f0; --muted:#9090aa;
+    --text-strong:#ffffff; --text-table:#d8d8ee; --text-badge:#ffffff;
+    --stat-label:#9090aa;
   }
   body.theme-purple {
     --bg:#0d0118; --surface:#160228; --surface2:#1f0338; --border:#3a1060;
     --accent:#b44dff; --accent2:#ff4daa; --accent3:#4dffcc;
-    --text:#f0e8ff; --muted:#8a6aaa;
+    --text:#f0e8ff; --muted:#b090cc;
+    --text-strong:#ffffff; --text-table:#e8d8ff; --text-badge:#ffffff;
+    --stat-label:#b090cc;
   }
   body.theme-midnight {
     --bg:#020b18; --surface:#071525; --surface2:#0d2035; --border:#1a3a55;
     --accent:#38b6ff; --accent2:#ff6b9d; --accent3:#38ffcc;
-    --text:#e0f0ff; --muted:#5a85aa;
+    --text:#e0f0ff; --muted:#80aace;
+    --text-strong:#ffffff; --text-table:#cce4ff; --text-badge:#ffffff;
+    --stat-label:#80aace;
   }
   body.theme-forest {
     --bg:#061a0e; --surface:#0c2818; --surface2:#143520; --border:#1e4d2a;
     --accent:#4dff91; --accent2:#ffcc4d; --accent3:#4dfff0;
-    --text:#e0ffe8; --muted:#5a8a6a;
+    --text:#d8ffe0; --muted:#7ab888;
+    --text-strong:#ffffff; --text-table:#c8f5d0; --text-badge:#061a0e;
+    --stat-label:#7ab888;
   }
   body.theme-light {
-    --bg:#f4f4f8; --surface:#ffffff; --surface2:#eaeaf2; --border:#d0d0e0;
-    --accent:#5b4de8; --accent2:#e84d7a; --accent3:#1ab87a;
-    --text:#1a1a2e; --muted:#7070a0;
+    --bg:#f0f2f8; --surface:#ffffff; --surface2:#e4e8f4; --border:#c4cce0;
+    --accent:#4535d4; --accent2:#d4355a; --accent3:#0f9e68;
+    --text:#0a0a1a; --muted:#44486a;
+    --text-strong:#000000; --text-table:#0a0a1a; --text-badge:#ffffff;
+    --stat-label:#44486a;
+    --done:#0a7a4a; --wip:#8a6000; --notstarted:#44486a; --overdue:#b02040;
   }
-  body.theme-light .header { background:linear-gradient(180deg,#eaeaf2 0%,#f4f4f8 100%); }
-  body.theme-light .badge.Not-Started { background:rgba(80,80,160,0.08); }
+
+  /* Universal text contrast rules applied across all themes */
+  .stat-label { color: var(--stat-label, var(--muted)) !important; }
+  .stat-val { color: var(--text-strong, var(--text)) !important; }
+  .stat-card.s-done .stat-val { color: var(--done) !important; }
+  .stat-card.s-wip .stat-val { color: var(--wip) !important; }
+  .stat-card.s-ns .stat-val { color: var(--notstarted, var(--muted)) !important; }
+  .stat-card.s-over .stat-val { color: var(--overdue) !important; }
+  .task-table td { color: var(--text-table, var(--text)) !important; }
+  .task-table th { color: var(--muted) !important; }
+  .logo { color: var(--text-strong, var(--text)) !important; }
+  .dept-tab { color: var(--muted) !important; }
+  .dept-tab.active { color: var(--accent) !important; }
+  .dept-tab:hover { color: var(--text) !important; }
+  .header-meta { color: var(--muted) !important; }
+  .notes-text { color: var(--muted) !important; }
+  .area-tag { color: var(--muted) !important; }
+  .modal-title { color: var(--text-strong, var(--text)) !important; }
+  .modal-task { color: var(--text, var(--text)) !important; }
+  .modal-label { color: var(--muted) !important; }
+  .modal-input { color: var(--text-table, var(--text)) !important; }
+  select.filter-select { color: var(--text-table, var(--text)) !important; }
+  .search-box { color: var(--text-table, var(--text)) !important; }
+  .period-btn { color: var(--muted) !important; }
+  .period-btn.active { color: #fff !important; }
+  .refresh-btn { color: var(--muted) !important; }
+  .week-header td { color: var(--accent) !important; }
+
+  /* Light mode specific overrides */
+  body.theme-light .header { background: linear-gradient(180deg,#e4e8f4 0%,#f0f2f8 100%); }
+  body.theme-light .badge.Not-Started { background:rgba(68,72,106,0.1); color:#44486a; }
+  body.theme-light .badge.WIP { background:rgba(138,96,0,0.12); color:#8a6000; }
+  body.theme-light .badge.Done { background:rgba(10,122,74,0.12); color:#0a7a4a; }
+  body.theme-light .badge.Overdue { background:rgba(176,32,64,0.12); color:#b02040; }
+  body.theme-light .wa-btn { border-color:#1a8a44; color:#1a8a44; }
+  body.theme-light .task-table tr:hover td { background:var(--surface2) !important; }
+  body.theme-light .grid-table td { color: var(--text-table) !important; background: var(--surface) !important; }
+  body.theme-light .grid-table td.portal-name { color: var(--accent) !important; }
+  body.theme-light select option { background: #ffffff; color: #0a0a1a; }
 </style>
 </head>
 <body>
@@ -324,7 +372,7 @@
       <button class="theme-btn" onclick="setTheme('light')" title="Light" style="background:#f0f0f5;border:1px solid #ccc;"></button>
     </div>
     <div class="header-meta">
-      <div><span class="live-dot"></span>LIVE — auto-refresh 5min</div>
+      <div><span class="live-dot"></span>LIVE — auto-refresh 30s</div>
       <div id="last-updated">—</div>
     </div>
   </div>
@@ -567,7 +615,7 @@ function init() {
   requestAnimationFrame(() => requestAnimationFrame(() => {
     renderContent();
     fetchAllDepts();
-    setInterval(fetchAllDepts, 5 * 60 * 1000);
+    setInterval(fetchAllDepts, 30 * 1000);
   }));
 }
 
@@ -660,6 +708,9 @@ function fetchData() {
 
 // Pre-fetch all depts so switching tabs shows live data immediately
 function fetchAllDepts() {
+  // Show syncing indicator
+  const lu = document.getElementById('last-updated');
+  if (lu) lu.textContent = '⟳ Syncing...';
   fetchData(); // fetch active first
   DEPTS.forEach(function(dept) {
     const periods = DEPT_PERIODS[dept] || ['Weekly','Monthly'];
@@ -992,6 +1043,14 @@ function showToast(msg, type = 'success') {
 // ============================================================
 document.getElementById('wa-modal').addEventListener('click', function(e) { if(e.target===this) closeModal(); });
 document.getElementById('status-modal').addEventListener('click', function(e) { if(e.target===this) closeStatusModal(); });
+
+// Re-fetch when user returns to this browser tab
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'visible') fetchAllDepts();
+});
+
+// Re-fetch when window regains focus
+window.addEventListener('focus', fetchAllDepts);
 
 init();
 </script>
