@@ -378,7 +378,7 @@
 // CONFIG — Replace with your single Apps Script URL
 // One URL handles all depts & periods via ?dept=X&period=Y
 // ============================================================
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwITe9zK87u5bfGUiSZXzSIGpw8WCTZHWZBXdA6i-rfQI0cWZ579B8USvNLg9gAStSURA/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_SINGLE_SCRIPT_URL/exec';
 
 function buildUrl(dept, period) {
   return `${APPS_SCRIPT_URL}?dept=${encodeURIComponent(dept)}&period=${encodeURIComponent(period)}`;
@@ -401,125 +401,85 @@ const DEPT_CONTACTS = {
 // ============================================================
 const FALLBACK_DATA = {
   Marketing: {
-    Weekly: {
-      type: 'tasks',
-      groups: [
-        {
-          week: '30th March – 4th April',
-          tasks: [
-            { area: 'Website', team: 'Creative Marketing', task: 'Close website GST audit and implement all changes', status: 'WIP', notes: '' },
-            { area: 'Website', team: 'Creative Marketing', task: 'New Product Reviews', status: 'Not Started', notes: '' },
-            { area: 'Ecom & OL marketplaces', team: 'Performance', task: 'Qcom analysis', status: 'Not Started', notes: '' },
-            { area: 'Content, Holistic', team: 'Creative Marketing', task: 'Content strategy for new launches in April', status: 'Not Started', notes: '' },
-            { area: 'Content, Holistic', team: 'Creative Marketing', task: 'Brand Moat Extension plan', status: 'WIP', notes: '' },
-            { area: 'Influencers', team: 'Creative Marketing', task: 'Batch A for April', status: 'Not Started', notes: '' },
-            { area: 'Hiring', team: 'Creative Marketing', task: 'MKT Intern', status: 'WIP', notes: '' },
-            { area: 'Hiring', team: 'Creative Marketing', task: 'GD Exec', status: 'WIP', notes: '' },
-            { area: 'Packaging Design', team: 'Creative Marketing', task: 'BD Labels as per requirements', status: 'Not Started', notes: '' },
-            { area: 'Podcast', team: 'Creative Marketing', task: 'Finalize guest, dates, topic etc', status: 'WIP', notes: '' },
-            { area: 'Customer Care, Hiring', team: 'Customer Care', task: 'Hiring new candidate for CC team', status: 'WIP', notes: '' },
-          ]
-        },
-        {
-          week: '16th – 21st March',
-          tasks: [
-            { area: 'Website', team: 'Creative Marketing', task: 'GST Audit Phase 2', status: 'WIP', notes: '' },
-            { area: 'Ecom & OL marketplaces', team: 'Performance', task: 'Qcom analysis', status: 'Done', notes: '' },
-            { area: 'Ecom & OL marketplaces', team: 'Performance, Creative Marketing', task: 'Amazon Audit phase 1', status: 'Done', notes: '' },
-            { area: 'Analysis, Website', team: 'Performance', task: 'Meta ads & Shopify performance analysis', status: 'Done', notes: '' },
-            { area: 'Shoots', team: 'Creative Marketing', task: 'shoot as per crave brand content plan phase 1 on 18th march', status: 'Done', notes: '' },
-            { area: 'Influencers', team: 'Creative Marketing', task: 'Batch B & C for millet chips push', status: 'Done', notes: '' },
-          ]
-        }
-      ]
-    },
+    Weekly: { type: 'tasks', groups: [
+      { week: '30th March – 4th April', tasks: [
+        { area: 'Website', team: 'Creative Marketing', task: 'Close website GST audit and implement all changes', status: 'WIP', notes: '' },
+        { area: 'Website', team: 'Creative Marketing', task: 'New Product Reviews', status: 'Not Started', notes: '' },
+        { area: 'Ecom & OL marketplaces', team: 'Performance', task: 'Qcom analysis', status: 'Not Started', notes: '' },
+        { area: 'Content, Holistic', team: 'Creative Marketing', task: 'Content strategy for new launches in April', status: 'Not Started', notes: '' },
+        { area: 'Content, Holistic', team: 'Creative Marketing', task: 'Brand Moat Extension plan', status: 'WIP', notes: '' },
+        { area: 'Influencers', team: 'Creative Marketing', task: 'Batch A for April', status: 'Not Started', notes: '' },
+        { area: 'Hiring', team: 'Creative Marketing', task: 'MKT Intern', status: 'WIP', notes: '' },
+        { area: 'Hiring', team: 'Creative Marketing', task: 'GD Exec', status: 'WIP', notes: '' },
+        { area: 'Packaging Design', team: 'Creative Marketing', task: 'BD Labels as per requirements', status: 'Not Started', notes: '' },
+        { area: 'Podcast', team: 'Creative Marketing', task: 'Finalize guest, dates, topic etc', status: 'WIP', notes: '' },
+        { area: 'Customer Care', team: 'Customer Care', task: 'Hiring new candidate for CC team', status: 'WIP', notes: '' },
+      ]},
+      { week: '16th – 21st March', tasks: [
+        { area: 'Website', team: 'Creative Marketing', task: 'GST Audit Phase 2', status: 'WIP', notes: '' },
+        { area: 'Ecom & OL marketplaces', team: 'Performance', task: 'Qcom analysis', status: 'Done', notes: '' },
+        { area: 'Ecom & OL marketplaces', team: 'Performance', task: 'Amazon Audit phase 1', status: 'Done', notes: '' },
+        { area: 'Analysis, Website', team: 'Performance', task: 'Meta ads & Shopify performance analysis', status: 'Done', notes: '' },
+        { area: 'Shoots', team: 'Creative Marketing', task: 'Shoot as per crave brand content plan phase 1', status: 'Done', notes: '' },
+        { area: 'Influencers', team: 'Creative Marketing', task: 'Batch B & C for millet chips push', status: 'Done', notes: '' },
+      ]}
+    ]},
     Monthly: { type: 'tasks', groups: [{ week: 'March 2026', tasks: [
       { area: 'Website', team: 'Creative Marketing', task: 'GST Audit', status: 'Not Started', notes: 'Information sheet to be filled, discuss timelines with Jakir' },
       { area: 'Ecom & OL marketplaces', team: 'Creative Marketing, Performance', task: 'Shopify Plan for March', status: 'Not Started', notes: 'Need update from stuti and aditya' },
       { area: 'Content, Holistic', team: 'Creative Marketing', task: 'Two weeks SM plan', status: 'Not Started', notes: '' },
       { area: 'Packaging Design', team: 'Creative Marketing', task: 'Pillow Packaging Jowar Chips', status: 'WIP', notes: '' },
       { area: 'Packaging Design', team: 'Creative Marketing', task: 'Baked Pizza sticks sleeve design changes', status: 'WIP', notes: '' },
-      { area: 'Hiring', team: 'Creative Marketing', task: 'MKT Intern', status: 'Not Started', notes: '' },
       { area: 'Design', team: 'Creative Marketing, BD', task: 'Aahar 2026 - start working on all requirements aligned', status: 'Not Started', notes: '' },
     ]}]},
     Quarterly: { type: 'tasks', groups: [{ week: 'Q1 2026', tasks: [
       { area: 'Holistic', team: 'Creative Marketing', task: 'Brand Moat Extension plan', status: 'WIP', notes: '' },
-      { area: 'Hiring', team: 'Creative Marketing', task: 'Build out full marketing team', status: 'Not Started', notes: '' },
     ]}]},
   },
   Ecommerce: {
     Weekly: {
       type: 'ecom',
       groups: [
-        {
-          week: '6th April to 10th April',
+        { week: '6th April to 10th April',
           portals: ['Website','Blinkit','Instamart','Zepto','BigBasket','RK World','Amazon Fresh','FirstClub','FK Minutes','JioMart','Others'],
           days: ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
           grid: {
-            'Website':      ['','BOB meeting for emails conversions quick call','Payday Sale switch to Overdose','TYS meeting','Give 2nd sale requirements','Holiday'],
+            'Website':      ['','BOB meeting for emails · Conversions quick call','Payday Sale switch to Overdose','TYS meeting','Give 2nd sale requirements','Holiday'],
             'Blinkit':      ['Follow up Devesh NLC · Close April budgets','Mailed Devesh','','TYS meeting','',''],
-            'Instamart':    ['Budget discussion with Deepthi','Get AS to call Prajval - CM2','CM2 Analyze ads · Ads review call','','Prepare data for meeting · Analysis',''],
+            'Instamart':    ['Budget discussion with Deepthi','Get AS to call Prajval · CM2','CM2 · Analyze ads · Ads review call','','Prepare data · Analysis',''],
             'Zepto':        ['Follow up for NPIs','19Rs. and 29Rs. deal · Follow up Paridhi for POs','Setting up campaigns with Div','','Prepare data · Analysis',''],
             'BigBasket':    ['GST finalisation','Get AS to call Saumya','Ads review · PO push','','',''],
-            'RK World':     ['','Speak to Riya on next steps · Offers for April','Map discrepancies · GST phase 1','Execution GST phase 1','Give Phase 2 to Marketing',''],
+            'RK World':     ['','Speak to Riya · Offers for April','Map discrepancies · GST phase 1','Execution GST phase 1','Give Phase 2 to Marketing',''],
             'Amazon Fresh': ['','','','','',''],
             'FirstClub':    ['','','Speak to Priya on next steps','','',''],
             'FK Minutes':   ['Follow up with Uday','Follow up with Uday','Follow up with Uday','','',''],
             'JioMart':      ['','','Follow up with JD','','',''],
-            'Others':       ['Inventory Call · Shruti KT session','Shruti KT session · BoB meeting','','Sit with Heet on Automation · Inventory call','',''],
-          }
-        },
-        {
-          week: '30th March to 4th April',
-          portals: ['Website','Blinkit','Instamart','Zepto','BigBasket','RK World','Amazon Fresh','FirstClub','FK Minutes','JioMart','Others'],
-          days: ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
-          grid: {
-            'Website':      ['Payday Sale went live','Placeholder Meeting with Marketing · Snack Overdose','BOB Email · setting up meeting','Leave','Holiday',''],
-            'Blinkit':      ['Follow up Devesh NLC · Close April budgets','Follow up with Devesh','','','',''],
-            'Instamart':    ['Followup Kshitij NPIs · Follow up CDK · FY 26-27 Budget closure','Get AS to call Prajval · Close budgets','','','','Plan set up for the month · in depth review of Ads'],
-            'Zepto':        ['Follow up for NPIs','','Setting up campaigns with Div','','','Plan set up for the month · in depth review of Ads'],
-            'BigBasket':    ['GST finalisation','','Ads review · PO push','','',''],
-            'RK World':     ['Cost sheet updated','Speak to Riya on next steps · Offers for April','DF sort out','','','Sales Analytics'],
-            'Amazon Fresh': ['','','','','','Sales Analytics'],
-            'FirstClub':    ['Speak with Zakk on barcode issue','Speak with Zakk on barcode issue','Get Status on PO','','',''],
-            'FK Minutes':   ['Follow up with Uday','Follow up with Uday','','','','**next steps contingent'],
-            'JioMart':      ['','Sit with JD on Listing process','Sit with JD on Listing process','','',''],
-            'Others':       ['Inventory Call · Instamart Meeting','Inventory Call · KT from Zakk Interview','','','','OMS Overview Meeting - AS'],
+            'Others':       ['Inventory Call · Shruti KT session','Shruti KT session · BoB meeting','','Sit with Heet on Automation','',''],
           }
         }
       ],
       tasks: [
-        { area: 'Ecom', team: 'Ecom', task: 'Complete handover of Shopify', status: 'Not Started', notes: '' },
-        { area: 'Ecom', team: 'Ecom', task: 'Onboard BOB', status: 'Not Started', notes: '' },
-        { area: 'Ecom', team: 'Ecom', task: 'Snackible x DataSay - reliability on the model, check accuracy', status: 'Not Started', notes: '' },
-        { area: 'Hiring', team: 'Ecom', task: 'Close with FOs', status: 'Not Started', notes: '' },
-        { area: 'BB', team: 'Ecom', task: 'Analysis of BB - changes to be mailed to Saumya', status: 'Not Started', notes: '' },
-        { area: 'FC', team: 'Ecom', task: 'Get onboarded and marketing strategy sorted', status: 'Not Started', notes: '' },
-        { area: 'JioMart', team: 'Ecom', task: 'Onboarding to be closed with JD', status: 'Not Started', notes: '' },
-        { area: 'Tech', team: 'Ecom', task: 'Delhivery Integration with Shopify to be closed', status: 'Not Started', notes: '' },
+        { area: 'Ecom', team: 'Ecommerce', task: 'Complete handover of Shopify', status: 'Not Started', notes: '' },
+        { area: 'Ecom', team: 'Ecommerce', task: 'Onboard BOB', status: 'Not Started', notes: '' },
+        { area: 'JioMart', team: 'Ecommerce', task: 'JioMart onboarding to be closed with JD', status: 'Not Started', notes: '' },
+        { area: 'Tech', team: 'Ecommerce', task: 'Delhivery Integration with Shopify to be closed', status: 'Not Started', notes: '' },
       ]
     },
     Monthly: { type: 'tasks', groups: [{ week: 'April 2026', tasks: [
       { area: 'Swiggy', team: 'Performance', task: 'GTSA Feb campaigns review and optimize', status: 'WIP', notes: '' },
-      { area: 'Zepto', team: 'Performance', task: 'PDA_Top SKU_all KW campaign', status: 'WIP', notes: '' },
-      { area: 'Holi', team: 'Ecom', task: 'Holi hampers strategy', status: 'Not Started', notes: '' },
+      { area: 'Zepto', team: 'Performance', task: 'PDA Top SKU all KW campaign', status: 'WIP', notes: '' },
     ]}]},
     Quarterly: { type: 'tasks', groups: [{ week: 'Q1 2026', tasks: [
       { area: 'All Platforms', team: 'Performance', task: 'Quarterly budget review and reallocation', status: 'Not Started', notes: '' },
     ]}]},
   },
-  Operations: { Weekly: { type:'tasks', groups:[{week:'This Week', tasks:[
-    { area:'Ops', team:'Operations', task:'Inventory Call', status:'WIP', notes:'' },
-    { area:'Ops', team:'Operations', task:'OMS Overview Meeting', status:'Not Started', notes:'' },
-  ]}]}, Monthly:{type:'tasks',groups:[{week:'April 2026',tasks:[]}]}, Quarterly:{type:'tasks',groups:[{week:'Q1',tasks:[]}]} },
-  'R&D': { Weekly:{type:'tasks',groups:[{week:'This Week',tasks:[]}]}, Monthly:{type:'tasks',groups:[{week:'April 2026',tasks:[]}]}, Quarterly:{type:'tasks',groups:[{week:'Q1',tasks:[]}]} },
-  FO: { Weekly:{type:'tasks',groups:[{week:'This Week',tasks:[]}]}, Monthly:{type:'tasks',groups:[{week:'April 2026',tasks:[]}]}, Quarterly:{type:'tasks',groups:[{week:'Q1',tasks:[]}]} },
-  B2B: { Weekly:{type:'tasks',groups:[{week:'This Week',tasks:[]}]}, Monthly:{type:'tasks',groups:[{week:'April 2026',tasks:[]}]}, Quarterly:{type:'tasks',groups:[{week:'Q1',tasks:[]}]} },
-  Finance: { Weekly:{type:'tasks',groups:[{week:'This Week',tasks:[]}]}, Monthly:{type:'tasks',groups:[{week:'April 2026',tasks:[]}]}, Quarterly:{type:'tasks',groups:[{week:'Q1',tasks:[]}]} },
-  'GT MT': { Weekly:{type:'tasks',groups:[{week:'This Week',tasks:[]}]}, Monthly:{type:'tasks',groups:[{week:'April 2026',tasks:[]}]}, Quarterly:{type:'tasks',groups:[{week:'Q1',tasks:[]}]} },
-  'GT MT': { Weekly:{type:'tasks',groups:[{week:'This Week',tasks:[]}]}, Monthly:{type:'tasks',groups:[{week:'April 2026',tasks:[]}]}, Quarterly:{type:'tasks',groups:[{week:'Q1',tasks:[]}]} },
+  Operations: { Weekly:{type:'tasks',groups:[{week:'This Week',tasks:[]}]}, Monthly:{type:'tasks',groups:[{week:'April 2026',tasks:[]}]}, Quarterly:{type:'tasks',groups:[{week:'Q1',tasks:[]}]} },
+  Finance:    { Weekly:{type:'tasks',groups:[{week:'This Week',tasks:[]}]}, Monthly:{type:'tasks',groups:[{week:'April 2026',tasks:[]}]}, Quarterly:{type:'tasks',groups:[{week:'Q1',tasks:[]}]} },
+  'R&D':      { Weekly:{type:'tasks',groups:[{week:'This Week',tasks:[]}]}, Monthly:{type:'tasks',groups:[{week:'April 2026',tasks:[]}]}, Quarterly:{type:'tasks',groups:[{week:'Q1',tasks:[]}]} },
+  'GT MT':    { Weekly:{type:'tasks',groups:[{week:'This Week',tasks:[]}]}, Monthly:{type:'tasks',groups:[{week:'April 2026',tasks:[]}]}, Quarterly:{type:'tasks',groups:[{week:'Q1',tasks:[]}]} },
+  FO:         { Weekly:{type:'tasks',groups:[{week:'This Week',tasks:[]}]}, Monthly:{type:'tasks',groups:[{week:'April 2026',tasks:[]}]}, Quarterly:{type:'tasks',groups:[{week:'Q1',tasks:[]}]} },
+  B2B:        { Weekly:{type:'tasks',groups:[{week:'This Week',tasks:[]}]}, Monthly:{type:'tasks',groups:[{week:'April 2026',tasks:[]}]}, Quarterly:{type:'tasks',groups:[{week:'Q1',tasks:[]}]} },
 };
-
 // ============================================================
 // STATE
 // ============================================================
