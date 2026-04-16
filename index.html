@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Task Manager</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #0a0a0f;
@@ -22,7 +22,7 @@
     --overdue: #fa6d8a;
   }
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:'DM Mono',monospace; background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; }
+  body { font-family:'Poppins',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; }
 
   /* HEADER */
   .header {
@@ -31,7 +31,7 @@
     border-bottom: 1px solid var(--border);
     background: linear-gradient(180deg, #0f0f1a 0%, var(--bg) 100%);
   }
-  .logo { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; letter-spacing:-0.5px; }
+  .logo { font-family:'Poppins',sans-serif; font-size:22px; font-weight:800; letter-spacing:-0.5px; }
   .logo span { color: var(--accent); }
   .header-meta { font-size:11px; color:var(--muted); text-align:right; line-height:1.8; }
   .live-dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--accent3); margin-right:5px; animation: pulse 2s infinite; }
@@ -47,7 +47,7 @@
   .dept-tabs::-webkit-scrollbar { height:3px; }
   .dept-tabs::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
   .dept-tab {
-    padding: 14px 22px; font-family:'Syne',sans-serif; font-size:12px; font-weight:600;
+    padding: 14px 22px; font-family:'Poppins',sans-serif; font-size:12px; font-weight:600;
     letter-spacing:1px; text-transform:uppercase; cursor:pointer;
     color:var(--muted); border-bottom:2px solid transparent;
     white-space:nowrap; transition:all 0.2s;
@@ -65,7 +65,7 @@
   }
   .period-selector { display:flex; gap:4px; background:var(--surface); border-radius:8px; padding:3px; }
   .period-btn {
-    padding:6px 16px; font-family:'DM Mono',monospace; font-size:11px; font-weight:500;
+    padding:6px 16px; font-family:'Poppins',sans-serif; font-size:11px; font-weight:500;
     border:none; border-radius:6px; cursor:pointer; color:var(--muted);
     background:transparent; transition:all 0.15s; letter-spacing:0.5px;
   }
@@ -73,27 +73,27 @@
   .search-box {
     flex:1; min-width:180px; max-width:300px;
     background:var(--surface); border:1px solid var(--border); border-radius:8px;
-    padding:7px 14px; color:var(--text); font-family:'DM Mono',monospace; font-size:12px;
+    padding:7px 14px; color:var(--text); font-family:'Poppins',sans-serif; font-size:12px;
     outline:none; transition:border-color 0.15s;
   }
   .search-box:focus { border-color:var(--accent); }
   .search-box::placeholder { color:var(--muted); }
   select.filter-select {
     background:var(--surface); border:1px solid var(--border); border-radius:8px;
-    padding:7px 12px; color:var(--text); font-family:'DM Mono',monospace; font-size:11px;
+    padding:7px 12px; color:var(--text); font-family:'Poppins',sans-serif; font-size:11px;
     outline:none; cursor:pointer;
   }
   .view-toggle { display:flex; gap:4px; background:var(--surface); border-radius:8px; padding:3px; }
   .view-btn {
     padding:6px 12px; font-size:11px; border:none; border-radius:6px;
     cursor:pointer; background:transparent; color:var(--muted); transition:all 0.15s;
-    font-family:'DM Mono',monospace;
+    font-family:'Poppins',sans-serif;
   }
   .view-btn.active { background:var(--surface2); color:var(--text); border:1px solid var(--border); }
   .spacer { flex:1; }
   .refresh-btn {
     padding:7px 14px; font-size:11px; border:1px solid var(--border); border-radius:8px;
-    background:transparent; color:var(--muted); cursor:pointer; font-family:'DM Mono',monospace;
+    background:transparent; color:var(--muted); cursor:pointer; font-family:'Poppins',sans-serif;
     transition:all 0.15s;
   }
   .refresh-btn:hover { border-color:var(--accent); color:var(--accent); }
@@ -108,7 +108,7 @@
     border-bottom:1px solid var(--border);
   }
   .stat-card:first-child { border-radius:0; }
-  .stat-val { font-family:'Syne',sans-serif; font-size:26px; font-weight:800; line-height:1; }
+  .stat-val { font-family:'Poppins',sans-serif; font-size:26px; font-weight:800; line-height:1; }
   .stat-label { font-size:10px; color:var(--muted); margin-top:4px; letter-spacing:1px; text-transform:uppercase; }
   .stat-card.s-done .stat-val { color:var(--done); }
   .stat-card.s-wip .stat-val { color:var(--wip); }
@@ -128,7 +128,7 @@
   .task-table td { padding:12px 14px; border-bottom:1px solid var(--border); font-size:12px; vertical-align:middle; }
   .task-table tr:hover td { background:var(--surface); }
   .week-header td {
-    padding:8px 14px; font-family:'Syne',sans-serif; font-size:11px; font-weight:700;
+    padding:8px 14px; font-family:'Poppins',sans-serif; font-size:11px; font-weight:700;
     color:var(--accent); letter-spacing:2px; text-transform:uppercase;
     background:var(--surface2); border-bottom:none;
   }
@@ -138,7 +138,7 @@
     display:inline-flex; align-items:center; gap:5px;
     padding:3px 10px; border-radius:20px; font-size:10px; font-weight:500;
     letter-spacing:0.5px; text-transform:uppercase; cursor:pointer; transition:all 0.15s;
-    border:none; font-family:'DM Mono',monospace;
+    border:none; font-family:'Poppins',sans-serif;
   }
   .badge:hover { opacity:0.8; transform:scale(0.97); }
   .badge-dot { width:5px; height:5px; border-radius:50%; }
@@ -162,7 +162,7 @@
   .wa-btn {
     padding:5px 12px; border-radius:6px; font-size:10px; font-weight:500;
     border:1px solid #25d366; color:#25d366; background:rgba(37,211,102,0.05);
-    cursor:pointer; font-family:'DM Mono',monospace; transition:all 0.15s;
+    cursor:pointer; font-family:'Poppins',sans-serif; transition:all 0.15s;
     white-space:nowrap;
   }
   .wa-btn:hover { background:rgba(37,211,102,0.15); }
@@ -181,14 +181,14 @@
     vertical-align:top; line-height:1.5; color:var(--text);
   }
   .grid-table td.portal-name {
-    font-family:'Syne',sans-serif; font-weight:600; font-size:12px;
+    font-family:'Poppins',sans-serif; font-weight:600; font-size:12px;
     color:var(--accent); background:var(--surface); white-space:nowrap;
   }
   .grid-table td:not(.portal-name) { background:var(--surface); }
   .grid-table td:not(.portal-name):hover { background:var(--surface2); }
   .grid-week-header { background:var(--surface2); }
   .grid-week-header td {
-    font-family:'Syne',sans-serif; font-size:11px; font-weight:700;
+    font-family:'Poppins',sans-serif; font-size:11px; font-weight:700;
     color:var(--accent3); letter-spacing:2px; text-align:left;
     padding:10px 14px; border:1px solid var(--border);
   }
@@ -230,33 +230,33 @@
     padding:28px; max-width:460px; width:90%; animation:slideUp 0.2s ease;
   }
   @keyframes slideUp { from{transform:translateY(20px);opacity:0;} to{transform:translateY(0);opacity:1;} }
-  .modal-title { font-family:'Syne',sans-serif; font-size:18px; font-weight:700; margin-bottom:8px; }
+  .modal-title { font-family:'Poppins',sans-serif; font-size:18px; font-weight:700; margin-bottom:8px; }
   .modal-task { font-size:12px; color:var(--muted); margin-bottom:20px; line-height:1.6; }
   .modal-section { margin-bottom:16px; }
   .modal-label { font-size:10px; letter-spacing:1px; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
   .modal-input {
     width:100%; padding:10px 14px; background:var(--surface2);
     border:1px solid var(--border); border-radius:8px;
-    color:var(--text); font-family:'DM Mono',monospace; font-size:12px; outline:none;
+    color:var(--text); font-family:'Poppins',sans-serif; font-size:12px; outline:none;
   }
   .modal-input:focus { border-color:var(--accent); }
   .modal-textarea { width:100%; height:80px; resize:none; }
   .modal-actions { display:flex; gap:10px; margin-top:20px; }
   .btn-primary {
     flex:1; padding:10px; background:var(--accent); color:#fff; border:none;
-    border-radius:8px; font-family:'Syne',sans-serif; font-size:13px; font-weight:600;
+    border-radius:8px; font-family:'Poppins',sans-serif; font-size:13px; font-weight:600;
     cursor:pointer; transition:all 0.15s;
   }
   .btn-primary:hover { opacity:0.85; }
   .btn-secondary {
     padding:10px 18px; background:transparent; color:var(--muted);
     border:1px solid var(--border); border-radius:8px;
-    font-family:'DM Mono',monospace; font-size:12px; cursor:pointer;
+    font-family:'Poppins',sans-serif; font-size:12px; cursor:pointer;
   }
   .btn-wa {
     flex:1; padding:10px; background:rgba(37,211,102,0.1); color:#25d366;
     border:1px solid #25d366; border-radius:8px;
-    font-family:'Syne',sans-serif; font-size:13px; font-weight:600; cursor:pointer;
+    font-family:'Poppins',sans-serif; font-size:13px; font-weight:600; cursor:pointer;
     transition:all 0.15s;
   }
   .btn-wa:hover { background:rgba(37,211,102,0.2); }
@@ -268,6 +268,44 @@
   ::-webkit-scrollbar { width:6px; height:6px; }
   ::-webkit-scrollbar-track { background:var(--bg); }
   ::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+
+  /* THEME SWITCHER */
+  .theme-switcher { display:flex; gap:6px; align-items:center; }
+  .theme-btn {
+    width:18px; height:18px; border-radius:50%; border:2px solid transparent;
+    cursor:pointer; transition:all 0.15s;
+  }
+  .theme-btn.active { border-color:var(--accent); transform:scale(1.2); }
+  .theme-btn:hover { transform:scale(1.15); }
+
+  /* THEMES */
+  body.theme-dark {
+    --bg:#0a0a0f; --surface:#13131a; --surface2:#1c1c27; --border:#2a2a3a;
+    --accent:#7c6dfa; --accent2:#fa6d8a; --accent3:#6dfabc;
+    --text:#e8e8f0; --muted:#6b6b85;
+  }
+  body.theme-purple {
+    --bg:#0d0118; --surface:#160228; --surface2:#1f0338; --border:#3a1060;
+    --accent:#b44dff; --accent2:#ff4daa; --accent3:#4dffcc;
+    --text:#f0e8ff; --muted:#8a6aaa;
+  }
+  body.theme-midnight {
+    --bg:#020b18; --surface:#071525; --surface2:#0d2035; --border:#1a3a55;
+    --accent:#38b6ff; --accent2:#ff6b9d; --accent3:#38ffcc;
+    --text:#e0f0ff; --muted:#5a85aa;
+  }
+  body.theme-forest {
+    --bg:#061a0e; --surface:#0c2818; --surface2:#143520; --border:#1e4d2a;
+    --accent:#4dff91; --accent2:#ffcc4d; --accent3:#4dfff0;
+    --text:#e0ffe8; --muted:#5a8a6a;
+  }
+  body.theme-light {
+    --bg:#f4f4f8; --surface:#ffffff; --surface2:#eaeaf2; --border:#d0d0e0;
+    --accent:#5b4de8; --accent2:#e84d7a; --accent3:#1ab87a;
+    --text:#1a1a2e; --muted:#7070a0;
+  }
+  body.theme-light .header { background:linear-gradient(180deg,#eaeaf2 0%,#f4f4f8 100%); }
+  body.theme-light .badge.Not-Started { background:rgba(80,80,160,0.08); }
 </style>
 </head>
 <body>
@@ -277,9 +315,18 @@
     <div class="logo">TASK<span>OS</span></div>
     <div style="font-size:10px;color:var(--muted);margin-top:3px;letter-spacing:1px;">OPERATIONS DASHBOARD</div>
   </div>
-  <div class="header-meta">
-    <div><span class="live-dot"></span>LIVE — auto-refresh 5min</div>
-    <div id="last-updated">—</div>
+  <div style="display:flex;align-items:center;gap:16px;">
+    <div class="theme-switcher" id="theme-switcher">
+      <button class="theme-btn active" onclick="setTheme('dark')" title="Dark" style="background:#0a0a0f;"></button>
+      <button class="theme-btn" onclick="setTheme('purple')" title="Purple" style="background:#1a0533;"></button>
+      <button class="theme-btn" onclick="setTheme('midnight')" title="Midnight Blue" style="background:#020b18;"></button>
+      <button class="theme-btn" onclick="setTheme('forest')" title="Forest" style="background:#061a0e;"></button>
+      <button class="theme-btn" onclick="setTheme('light')" title="Light" style="background:#f0f0f5;border:1px solid #ccc;"></button>
+    </div>
+    <div class="header-meta">
+      <div><span class="live-dot"></span>LIVE — auto-refresh 5min</div>
+      <div id="last-updated">—</div>
+    </div>
   </div>
 </div>
 
@@ -341,7 +388,7 @@
     </div>
     <div class="modal-section">
       <div class="modal-label">Message Preview</div>
-      <textarea class="modal-input modal-textarea" id="wa-message" readonly></textarea>
+      <textarea class="modal-input modal-textarea" id="wa-message" placeholder="Edit your reminder message..."></textarea>
     </div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal()">Cancel</button>
@@ -374,6 +421,26 @@
 <div class="toast" id="toast"></div>
 
 <script>
+
+// ============================================================
+// THEME
+// ============================================================
+const THEMES = ['dark','purple','midnight','forest','light'];
+
+function setTheme(name) {
+  THEMES.forEach(t => document.body.classList.remove('theme-' + t));
+  document.body.classList.add('theme-' + name);
+  document.querySelectorAll('.theme-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', THEMES[i] === name);
+  });
+  localStorage.setItem('taskos-theme', name);
+}
+
+function loadTheme() {
+  const saved = localStorage.getItem('taskos-theme') || 'dark';
+  setTheme(saved);
+}
+
 // ============================================================
 // CONFIG — Replace with your single Apps Script URL
 // One URL handles all depts & periods via ?dept=X&period=Y
@@ -495,6 +562,7 @@ let pendingWaTask = null;
 // INIT
 // ============================================================
 function init() {
+  loadTheme();
   renderDeptTabs();
   requestAnimationFrame(() => requestAnimationFrame(() => {
     renderContent();
