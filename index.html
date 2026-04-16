@@ -498,8 +498,8 @@ function init() {
   renderDeptTabs();
   requestAnimationFrame(() => requestAnimationFrame(() => {
     renderContent();
-    fetchData();
-    setInterval(fetchData, 5 * 60 * 1000);
+    fetchAllDepts();
+    setInterval(fetchAllDepts, 5 * 60 * 1000);
   }));
 }
 
@@ -559,28 +559,66 @@ function setView(v) {
 // ============================================================
 function fetchData() {
   if (APPS_SCRIPT_URL.includes('YOUR_')) return;
-  const url = buildUrl(activeDept, activePeriod);
-  const callbackName = 'cb_' + Date.now();
+  // Capture dept+period NOW so callback uses correct values even if user switches tabs
+  const dept   = activeDept;
+  const period = activePeriod;
+  const url    = buildUrl(dept, period);
+  const callbackName = 'cb_' + dept.replace(/[^a-z0-9]/gi,'_') + '_' + period + '_' + Date.now();
 
   const script = document.createElement('script');
   script.src = url + '&callback=' + callbackName;
 
   window[callbackName] = function(json) {
     delete window[callbackName];
-    document.head.removeChild(script);
+    if (document.head.contains(script)) document.head.removeChild(script);
     if (json && json.data) {
-      liveData[activeDept][activePeriod] = json.data;
-      renderContent();
-      document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'}) + ' IST';
+      if (!liveData[dept]) liveData[dept] = {};
+      liveData[dept][period] = json.data;
+      // Only re-render if user is still on the same tab
+      if (activeDept === dept && activePeriod === period) {
+        renderContent();
+        document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'}) + ' IST';
+      }
     }
   };
 
   script.onerror = function() {
     delete window[callbackName];
-    document.head.removeChild(script);
+    if (document.head.contains(script)) document.head.removeChild(script);
   };
 
   document.head.appendChild(script);
+}
+
+// Pre-fetch all depts so switching tabs shows live data immediately
+function fetchAllDepts() {
+  fetchData(); // fetch active first
+  DEPTS.forEach(function(dept) {
+    const periods = DEPT_PERIODS[dept] || ['Weekly','Monthly'];
+    periods.forEach(function(period) {
+      if (dept === activeDept && period === activePeriod) return; // already fetching
+      if (APPS_SCRIPT_URL.includes('YOUR_')) return;
+      const d = dept, p = period;
+      const url = buildUrl(d, p);
+      const cbName = 'cb_' + d.replace(/[^a-z0-9]/gi,'_') + '_' + p + '_' + Date.now();
+      const script = document.createElement('script');
+      script.src = url + '&callback=' + cbName;
+      window[cbName] = function(json) {
+        delete window[cbName];
+        if (document.head.contains(script)) document.head.removeChild(script);
+        if (json && json.data) {
+          if (!liveData[d]) liveData[d] = {};
+          liveData[d][p] = json.data;
+          if (activeDept === d && activePeriod === p) {
+            renderContent();
+            document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'}) + ' IST';
+          }
+        }
+      };
+      script.onerror = function() { delete window[cbName]; if (document.head.contains(script)) document.head.removeChild(script); };
+      document.head.appendChild(script);
+    });
+  });
 }
 
 // ============================================================
@@ -678,11 +716,11 @@ function filterTasks(tasks) {
 function renderTaskTable(groups, extraTasks) {
   let html = `<table class="task-table">
     <thead><tr>
+      <th style="width:180px">Area / Category</th>
+      <th style="width:160px">Team / POC</th>
       <th>Task</th>
-      <th style="width:160px">Owner</th>
-      <th style="width:110px">Due Date</th>
       <th style="width:130px">Status</th>
-      <th style="width:200px">Notes</th>
+      <th style="width:220px">Notes</th>
       <th style="width:110px">Action</th>
     </tr></thead><tbody>`;
 
@@ -721,13 +759,13 @@ function renderTaskTable(groups, extraTasks) {
 function taskRow(t, id) {
   const s = normalizeStatus(t.status);
   const badgeClass = s.replace(' ', '-');
-  const due = t.due ? `<span style="font-size:10px;color:var(--muted)">${t.due}</span>` : '—';
   const isOverdue = s === 'Overdue';
   const rowStyle = isOverdue ? 'background:rgba(250,109,138,0.04);' : '';
+  const areas = (t.area || '').split(',').map(a => `<span class="area-tag">${a.trim()}</span>`).join('');
   return `<tr style="${rowStyle}">
+    <td>${areas || '—'}</td>
+    <td><span style="font-size:11px;color:var(--muted)">${t.team || '—'}</span></td>
     <td style="font-size:13px;font-weight:500">${t.task || '—'}</td>
-    <td><span style="font-size:11px;color:var(--muted)">${t.owner || '—'}</span></td>
-    <td>${due}</td>
     <td>
       <button class="badge ${badgeClass}" onclick="openStatusModal(${JSON.stringify({...t}).replace(/"/g,'&quot;')})">
         <span class="badge-dot"></span>${s}
