@@ -378,7 +378,7 @@
 // CONFIG — Replace with your single Apps Script URL
 // One URL handles all depts & periods via ?dept=X&period=Y
 // ============================================================
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_SINGLE_SCRIPT_URL/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzqPIb21-v6KesTaaJz7luvkxXp1cv713ATnx80pHKPeyUAnBjhW4tyL2ZKSdinej99EA/exec';
 
 function buildUrl(dept, period) {
   return `${APPS_SCRIPT_URL}?dept=${encodeURIComponent(dept)}&period=${encodeURIComponent(period)}`;
@@ -534,21 +534,30 @@ function setView(v) {
 // ============================================================
 // FETCH
 // ============================================================
-async function fetchData() {
+function fetchData() {
+  if (APPS_SCRIPT_URL.includes('YOUR_')) return;
   const url = buildUrl(activeDept, activePeriod);
-  if (APPS_SCRIPT_URL.includes('YOUR_')) return; // placeholder URL, skip
+  const callbackName = 'cb_' + Date.now();
 
-  try {
-    const res = await fetch(url);
-    const json = await res.json();
+  const script = document.createElement('script');
+  script.src = url + '&callback=' + callbackName;
+
+  window[callbackName] = function(json) {
+    delete window[callbackName];
+    document.head.removeChild(script);
     if (json && json.data) {
       liveData[activeDept][activePeriod] = json.data;
       renderContent();
       document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'}) + ' IST';
     }
-  } catch(e) {
-    // silently use fallback
-  }
+  };
+
+  script.onerror = function() {
+    delete window[callbackName];
+    document.head.removeChild(script);
+  };
+
+  document.head.appendChild(script);
 }
 
 // ============================================================
