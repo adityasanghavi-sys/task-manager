@@ -289,9 +289,9 @@
 <!-- CONTROLS -->
 <div class="controls">
   <div class="period-selector" id="period-selector">
-    <button class="period-btn active" onclick="setPeriod('Weekly')">Weekly</button>
-    <button class="period-btn" onclick="setPeriod('Monthly')">Monthly</button>
-    <button class="period-btn" onclick="setPeriod('Quarterly')">Quarterly</button>
+    <button class="period-btn active" onclick="setPeriod('Weekly')" id="pbtn-Weekly">Weekly</button>
+    <button class="period-btn" onclick="setPeriod('Monthly')" id="pbtn-Monthly">Monthly</button>
+    <button class="period-btn" onclick="setPeriod('Quarterly')" id="pbtn-Quarterly">Quarterly</button>
   </div>
   <input class="search-box" type="text" placeholder="Search tasks..." id="search-input" oninput="renderContent()">
   <select class="filter-select" id="status-filter" onchange="renderContent()">
@@ -378,7 +378,7 @@
 // CONFIG — Replace with your single Apps Script URL
 // One URL handles all depts & periods via ?dept=X&period=Y
 // ============================================================
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzqPIb21-v6KesTaaJz7luvkxXp1cv713ATnx80pHKPeyUAnBjhW4tyL2ZKSdinej99EA/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwT3LtNgD8CV7GJ8OWwsIJBVN7Uoh10rgIZgpgyutKXJXE_uhtywUBXlJ5jF2NORnz_/exec';
 
 function buildUrl(dept, period) {
   return `${APPS_SCRIPT_URL}?dept=${encodeURIComponent(dept)}&period=${encodeURIComponent(period)}`;
@@ -510,9 +510,32 @@ function renderDeptTabs() {
   ).join('');
 }
 
+// Periods available per dept
+const DEPT_PERIODS = {
+  Marketing:  ['Weekly', 'Monthly'],
+  Ecommerce:  ['Weekly', 'Monthly'],
+  Finance:    ['Monthly'],
+  'R&D':      ['Weekly', 'Monthly'],
+  'GT MT':    ['Weekly', 'Monthly'],
+  Operations: ['Weekly', 'Monthly'],
+  FO:         ['Weekly'],
+  B2B:        ['Weekly'],
+};
+
 function setDept(dept) {
   activeDept = dept;
   activeView = 'task';
+  // Reset period to first available for this dept
+  const periods = DEPT_PERIODS[dept] || ['Weekly','Monthly','Quarterly'];
+  if (!periods.includes(activePeriod)) {
+    activePeriod = periods[0];
+  }
+  // Show/hide period buttons
+  ['Weekly','Monthly','Quarterly'].forEach(p => {
+    const btn = document.getElementById('pbtn-' + p);
+    if (btn) btn.style.display = periods.includes(p) ? '' : 'none';
+  });
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.toggle('active', b.textContent === activePeriod));
   renderDeptTabs();
   renderContent();
 }
