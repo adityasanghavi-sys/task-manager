@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1c1c27;
+    --border: #2a2a3a;
+    --accent: #7c6dfa;
+    --accent2: #fa6d8a;
+    --accent3: #6dfabc;
+    --text: #e8e8f0;
+    --muted: #6b6b85;
+    --done: #6dfabc;
+    --wip: #facc6d;
+    --notstarted: #6b6b85;
+    --overdue: #fa6d8a;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'DM Mono',monospace; background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; }
+
+  /* HEADER */
+  .header {
+    padding: 24px 32px 0;
+    display:flex; align-items:center; justify-content:space-between;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #0f0f1a 0%, var(--bg) 100%);
+  }
+  .logo { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; letter-spacing:-0.5px; }
+  .logo span { color: var(--accent); }
+  .header-meta { font-size:11px; color:var(--muted); text-align:right; line-height:1.8; }
+  .live-dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--accent3); margin-right:5px; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+  /* DEPT TABS */
+  .dept-tabs {
+    display:flex; gap:0; padding: 0 32px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    overflow-x:auto;
+  }
+  .dept-tabs::-webkit-scrollbar { height:3px; }
+  .dept-tabs::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+  .dept-tab {
+    padding: 14px 22px; font-family:'Syne',sans-serif; font-size:12px; font-weight:600;
+    letter-spacing:1px; text-transform:uppercase; cursor:pointer;
+    color:var(--muted); border-bottom:2px solid transparent;
+    white-space:nowrap; transition:all 0.2s;
+    background:none; border-top:none; border-left:none; border-right:none;
+  }
+  .dept-tab:hover { color:var(--text); }
+  .dept-tab.active { color:var(--accent); border-bottom-color:var(--accent); }
+
+  /* CONTROLS BAR */
+  .controls {
+    display:flex; align-items:center; gap:12px;
+    padding:16px 32px; background:var(--surface2);
+    border-bottom:1px solid var(--border);
+    flex-wrap:wrap;
+  }
+  .period-selector { display:flex; gap:4px; background:var(--surface); border-radius:8px; padding:3px; }
+  .period-btn {
+    padding:6px 16px; font-family:'DM Mono',monospace; font-size:11px; font-weight:500;
+    border:none; border-radius:6px; cursor:pointer; color:var(--muted);
+    background:transparent; transition:all 0.15s; letter-spacing:0.5px;
+  }
+  .period-btn.active { background:var(--accent); color:#fff; }
+  .search-box {
+    flex:1; min-width:180px; max-width:300px;
+    background:var(--surface); border:1px solid var(--border); border-radius:8px;
+    padding:7px 14px; color:var(--text); font-family:'DM Mono',monospace; font-size:12px;
+    outline:none; transition:border-color 0.15s;
+  }
+  .search-box:focus { border-color:var(--accent); }
+  .search-box::placeholder { color:var(--muted); }
+  select.filter-select {
+    background:var(--surface); border:1px solid var(--border); border-radius:8px;
+    padding:7px 12px; color:var(--text); font-family:'DM Mono',monospace; font-size:11px;
+    outline:none; cursor:pointer;
+  }
+  .view-toggle { display:flex; gap:4px; background:var(--surface); border-radius:8px; padding:3px; }
+  .view-btn {
+    padding:6px 12px; font-size:11px; border:none; border-radius:6px;
+    cursor:pointer; background:transparent; color:var(--muted); transition:all 0.15s;
+    font-family:'DM Mono',monospace;
+  }
+  .view-btn.active { background:var(--surface2); color:var(--text); border:1px solid var(--border); }
+  .spacer { flex:1; }
+  .refresh-btn {
+    padding:7px 14px; font-size:11px; border:1px solid var(--border); border-radius:8px;
+    background:transparent; color:var(--muted); cursor:pointer; font-family:'DM Mono',monospace;
+    transition:all 0.15s;
+  }
+  .refresh-btn:hover { border-color:var(--accent); color:var(--accent); }
+
+  /* STATS BAR */
+  .stats-bar {
+    display:flex; gap:1px; padding:0 32px 0;
+    background:var(--bg);
+  }
+  .stat-card {
+    flex:1; padding:14px 20px; background:var(--surface);
+    border-bottom:1px solid var(--border);
+  }
+  .stat-card:first-child { border-radius:0; }
+  .stat-val { font-family:'Syne',sans-serif; font-size:26px; font-weight:800; line-height:1; }
+  .stat-label { font-size:10px; color:var(--muted); margin-top:4px; letter-spacing:1px; text-transform:uppercase; }
+  .stat-card.s-done .stat-val { color:var(--done); }
+  .stat-card.s-wip .stat-val { color:var(--wip); }
+  .stat-card.s-ns .stat-val { color:var(--muted); }
+  .stat-card.s-over .stat-val { color:var(--overdue); }
+
+  /* MAIN CONTENT */
+  .main { padding:24px 32px; }
+
+  /* TABLE VIEW */
+  .task-table { width:100%; border-collapse:collapse; }
+  .task-table th {
+    text-align:left; padding:10px 14px; font-size:10px; letter-spacing:1.5px;
+    text-transform:uppercase; color:var(--muted); border-bottom:1px solid var(--border);
+    font-weight:500;
+  }
+  .task-table td { padding:12px 14px; border-bottom:1px solid var(--border); font-size:12px; vertical-align:middle; }
+  .task-table tr:hover td { background:var(--surface); }
+  .week-header td {
+    padding:8px 14px; font-family:'Syne',sans-serif; font-size:11px; font-weight:700;
+    color:var(--accent); letter-spacing:2px; text-transform:uppercase;
+    background:var(--surface2); border-bottom:none;
+  }
+
+  /* STATUS BADGE */
+  .badge {
+    display:inline-flex; align-items:center; gap:5px;
+    padding:3px 10px; border-radius:20px; font-size:10px; font-weight:500;
+    letter-spacing:0.5px; text-transform:uppercase; cursor:pointer; transition:all 0.15s;
+    border:none; font-family:'DM Mono',monospace;
+  }
+  .badge:hover { opacity:0.8; transform:scale(0.97); }
+  .badge-dot { width:5px; height:5px; border-radius:50%; }
+  .badge.Done { background:rgba(109,250,188,0.12); color:var(--done); }
+  .badge.Done .badge-dot { background:var(--done); }
+  .badge.WIP { background:rgba(250,204,109,0.12); color:var(--wip); }
+  .badge.WIP .badge-dot { background:var(--wip); }
+  .badge.Not-Started { background:rgba(107,107,133,0.12); color:var(--muted); }
+  .badge.Not-Started .badge-dot { background:var(--muted); }
+  .badge.Overdue { background:rgba(250,109,138,0.12); color:var(--overdue); }
+  .badge.Overdue .badge-dot { background:var(--overdue); }
+
+  /* AREA TAG */
+  .area-tag {
+    display:inline-block; padding:2px 8px; border-radius:4px;
+    font-size:10px; background:var(--surface2); color:var(--muted);
+    border:1px solid var(--border); margin:1px;
+  }
+
+  /* WHATSAPP BTN */
+  .wa-btn {
+    padding:5px 12px; border-radius:6px; font-size:10px; font-weight:500;
+    border:1px solid #25d366; color:#25d366; background:rgba(37,211,102,0.05);
+    cursor:pointer; font-family:'DM Mono',monospace; transition:all 0.15s;
+    white-space:nowrap;
+  }
+  .wa-btn:hover { background:rgba(37,211,102,0.15); }
+
+  /* GRID VIEW (Ecommerce) */
+  .grid-container { overflow-x:auto; }
+  .grid-table { min-width:900px; width:100%; border-collapse:collapse; }
+  .grid-table th {
+    padding:10px 12px; font-size:10px; letter-spacing:1px; text-transform:uppercase;
+    color:var(--muted); border:1px solid var(--border); text-align:center;
+    background:var(--surface); font-weight:500;
+  }
+  .grid-table th.portal-col { text-align:left; min-width:120px; }
+  .grid-table td {
+    padding:10px 12px; border:1px solid var(--border); font-size:11px;
+    vertical-align:top; line-height:1.5; color:var(--text);
+  }
+  .grid-table td.portal-name {
+    font-family:'Syne',sans-serif; font-weight:600; font-size:12px;
+    color:var(--accent); background:var(--surface); white-space:nowrap;
+  }
+  .grid-table td:not(.portal-name) { background:var(--surface); }
+  .grid-table td:not(.portal-name):hover { background:var(--surface2); }
+  .grid-week-header { background:var(--surface2); }
+  .grid-week-header td {
+    font-family:'Syne',sans-serif; font-size:11px; font-weight:700;
+    color:var(--accent3); letter-spacing:2px; text-align:left;
+    padding:10px 14px; border:1px solid var(--border);
+  }
+
+  /* LOADING */
+  .loading-state { text-align:center; padding:60px; color:var(--muted); font-size:12px; }
+  .loading-spinner {
+    width:32px; height:32px; border:2px solid var(--border);
+    border-top-color:var(--accent); border-radius:50%;
+    animation:spin 0.8s linear infinite; margin:0 auto 16px;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  /* EMPTY STATE */
+  .empty-state { text-align:center; padding:60px; color:var(--muted); }
+  .empty-icon { font-size:48px; margin-bottom:12px; opacity:0.3; }
+
+  /* TOAST */
+  .toast {
+    position:fixed; bottom:24px; right:24px; padding:12px 20px;
+    background:var(--surface2); border:1px solid var(--border); border-radius:10px;
+    font-size:12px; color:var(--text); z-index:1000;
+    transform:translateY(80px); opacity:0; transition:all 0.3s;
+    max-width:320px;
+  }
+  .toast.show { transform:translateY(0); opacity:1; }
+  .toast.success { border-color:var(--done); }
+  .toast.error { border-color:var(--overdue); }
+
+  /* MODAL */
+  .modal-overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:500;
+    display:none; align-items:center; justify-content:center;
+    backdrop-filter:blur(4px);
+  }
+  .modal-overlay.show { display:flex; }
+  .modal {
+    background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:28px; max-width:460px; width:90%; animation:slideUp 0.2s ease;
+  }
+  @keyframes slideUp { from{transform:translateY(20px);opacity:0;} to{transform:translateY(0);opacity:1;} }
+  .modal-title { font-family:'Syne',sans-serif; font-size:18px; font-weight:700; margin-bottom:8px; }
+  .modal-task { font-size:12px; color:var(--muted); margin-bottom:20px; line-height:1.6; }
+  .modal-section { margin-bottom:16px; }
+  .modal-label { font-size:10px; letter-spacing:1px; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+  .modal-input {
+    width:100%; padding:10px 14px; background:var(--surface2);
+    border:1px solid var(--border); border-radius:8px;
+    color:var(--text); font-family:'DM Mono',monospace; font-size:12px; outline:none;
+  }
+  .modal-input:focus { border-color:var(--accent); }
+  .modal-textarea { width:100%; height:80px; resize:none; }
+  .modal-actions { display:flex; gap:10px; margin-top:20px; }
+  .btn-primary {
+    flex:1; padding:10px; background:var(--accent); color:#fff; border:none;
+    border-radius:8px; font-family:'Syne',sans-serif; font-size:13px; font-weight:600;
+    cursor:pointer; transition:all 0.15s;
+  }
+  .btn-primary:hover { opacity:0.85; }
+  .btn-secondary {
+    padding:10px 18px; background:transparent; color:var(--muted);
+    border:1px solid var(--border); border-radius:8px;
+    font-family:'DM Mono',monospace; font-size:12px; cursor:pointer;
+  }
+  .btn-wa {
+    flex:1; padding:10px; background:rgba(37,211,102,0.1); color:#25d366;
+    border:1px solid #25d366; border-radius:8px;
+    font-family:'Syne',sans-serif; font-size:13px; font-weight:600; cursor:pointer;
+    transition:all 0.15s;
+  }
+  .btn-wa:hover { background:rgba(37,211,102,0.2); }
+
+  /* NOTES CELL */
+  .notes-text { color:var(--muted); font-size:11px; font-style:italic; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-track { background:var(--bg); }
+  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="logo">TASK<span>OS</span></div>
+    <div style="font-size:10px;color:var(--muted);margin-top:3px;letter-spacing:1px;">OPERATIONS DASHBOARD</div>
+  </div>
+  <div class="header-meta">
+    <div><span class="live-dot"></span>LIVE — auto-refresh 5min</div>
+    <div id="last-updated">—</div>
+  </div>
+</div>
+
+<!-- DEPT TABS -->
+<div class="dept-tabs" id="dept-tabs"></div>
+
+<!-- CONTROLS -->
+<div class="controls">
+  <div class="period-selector" id="period-selector">
+    <button class="period-btn active" onclick="setPeriod('Weekly')">Weekly</button>
+    <button class="period-btn" onclick="setPeriod('Monthly')">Monthly</button>
+    <button class="period-btn" onclick="setPeriod('Quarterly')">Quarterly</button>
+  </div>
+  <input class="search-box" type="text" placeholder="Search tasks..." id="search-input" oninput="renderContent()">
+  <select class="filter-select" id="status-filter" onchange="renderContent()">
+    <option value="">All Statuses</option>
+    <option value="Done">Done</option>
+    <option value="WIP">WIP</option>
+    <option value="Not Started">Not Started</option>
+    <option value="Overdue">Overdue</option>
+  </select>
+  <select class="filter-select" id="team-filter" onchange="renderContent()" title="Filter by owner">
+    <option value="">All Owners</option>
+  </select>
+  <div class="view-toggle" id="view-toggle" style="display:none;">
+    <button class="view-btn active" onclick="setView('task')" id="vbtn-task">☰ Tasks</button>
+    <button class="view-btn" onclick="setView('grid')" id="vbtn-grid">⊞ Grid</button>
+  </div>
+  <div class="spacer"></div>
+  <button class="refresh-btn" onclick="fetchData()">↻ Refresh</button>
+</div>
+
+<!-- STATS -->
+<div class="stats-bar" id="stats-bar">
+  <div class="stat-card"><div class="stat-val" id="stat-total">—</div><div class="stat-label">Total Tasks</div></div>
+  <div class="stat-card s-done"><div class="stat-val" id="stat-done">—</div><div class="stat-label">Done</div></div>
+  <div class="stat-card s-wip"><div class="stat-val" id="stat-wip">—</div><div class="stat-label">In Progress</div></div>
+  <div class="stat-card s-ns"><div class="stat-val" id="stat-ns">—</div><div class="stat-label">Not Started</div></div>
+  <div class="stat-card s-over"><div class="stat-val" id="stat-over">—</div><div class="stat-label">Overdue</div></div>
+</div>
+
+<!-- MAIN -->
+<div class="main" id="main-content">
+  <div class="loading-state"><div class="loading-spinner"></div>Loading tasks...</div>
+</div>
+
+<!-- WHATSAPP MODAL -->
+<div class="modal-overlay" id="wa-modal">
+  <div class="modal">
+    <div class="modal-title">📱 Send WhatsApp Reminder</div>
+    <div class="modal-task" id="wa-task-info"></div>
+    <div class="modal-section">
+      <div class="modal-label">Owner Number</div>
+      <input class="modal-input" id="wa-owner" type="tel" placeholder="+91 98765 43210">
+    </div>
+    <div class="modal-section">
+      <div class="modal-label">Manager Number</div>
+      <input class="modal-input" id="wa-manager" type="tel" placeholder="+91 98765 43210">
+    </div>
+    <div class="modal-section">
+      <div class="modal-label">Message Preview</div>
+      <textarea class="modal-input modal-textarea" id="wa-message" readonly></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-wa" onclick="sendWhatsApp()">Send via WhatsApp</button>
+    </div>
+  </div>
+</div>
+
+<!-- STATUS MODAL -->
+<div class="modal-overlay" id="status-modal">
+  <div class="modal">
+    <div class="modal-title">Update Status</div>
+    <div class="modal-task" id="status-task-info"></div>
+    <div class="modal-section">
+      <div class="modal-label">New Status</div>
+      <select class="modal-input" id="status-select">
+        <option value="Not Started">Not Started</option>
+        <option value="WIP">WIP</option>
+        <option value="Done">Done</option>
+        <option value="Overdue">Overdue</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeStatusModal()">Cancel</button>
+      <button class="btn-primary" onclick="confirmStatusUpdate()">Update</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// CONFIG — Replace with your single Apps Script URL
+// One URL handles all depts & periods via ?dept=X&period=Y
+// ============================================================
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_SINGLE_SCRIPT_URL/exec';
+
+function buildUrl(dept, period) {
+  return `${APPS_SCRIPT_URL}?dept=${encodeURIComponent(dept)}&period=${encodeURIComponent(period)}`;
+}
+
+// Hardcoded WhatsApp numbers per department
+const DEPT_CONTACTS = {
+  Marketing:  { owner: '+919840089201', manager: '+919840089201' },
+  Ecommerce:  { owner: '+917715807071', manager: '+917715807071' },
+  Operations: { owner: '+919137801384', manager: '+919137801384' },
+  'R&D':      { owner: '+917306141615', manager: '+917306141615' },
+  Finance:    { owner: '+918349332382', manager: '+918349332382' },
+  'GT MT':    { owner: '+919004579848', manager: '+919004579848' },
+  FO:         { owner: '+919137801384', manager: '+919137801384' },
+  B2B:        { owner: '+917715807071', manager: '+917715807071' },
+};
+
+// ============================================================
+// FALLBACK DATA (shows instantly while fetch runs)
+// ============================================================
+const FALLBACK_DATA = {
+  Marketing: {
+    Weekly: {
+      type: 'tasks',
+      groups: [
+        {
+          week: '30th March – 4th April',
+          tasks: [
+            { area: 'Website', team: 'Creative Marketing', task: 'Close website GST audit and implement all changes', status: 'WIP', notes: '' },
+            { area: 'Website', team: 'Creative Marketing', task: 'New Product Reviews', status: 'Not Started', notes: '' },
+            { area: 'Ecom & OL marketplaces', team: 'Performance', task: 'Qcom analysis', status: 'Not Started', notes: '' },
+            { area: 'Content, Holistic', team: 'Creative Marketing', task: 'Content strategy for new launches in April', status: 'Not Started', notes: '' },
+            { area: 'Content, Holistic', team: 'Creative Marketing', task: 'Brand Moat Extension plan', status: 'WIP', notes: '' },
+            { area: 'Influencers', team: 'Creative Marketing', task: 'Batch A for April', status: 'Not Started', notes: '' },
+            { area: 'Hiring', team: 'Creative Marketing', task: 'MKT Intern', status: 'WIP', notes: '' },
+            { area: 'Hiring', team: 'Creative Marketing', task: 'GD Exec', status: 'WIP', notes: '' },
+            { area: 'Packaging Design', team: 'Creative Marketing', task: 'BD Labels as per requirements', status: 'Not Started', notes: '' },
+            { area: 'Podcast', team: 'Creative Marketing', task: 'Finalize guest, dates, topic etc', status: 'WIP', notes: '' },
+            { area: 'Customer Care, Hiring', team: 'Customer Care', task: 'Hiring new candidate for CC team', status: 'WIP', notes: '' },
+          ]
+        },
+        {
+          week: '16th – 21st March',
+          tasks: [
+            { area: 'Website', team: 'Creative Marketing', task: 'GST Audit Phase 2', status: 'WIP', notes: '' },
+            { area: 'Ecom & OL marketplaces', team: 'Performance', task: 'Qcom analysis', status: 'Done', notes: '' },
+            { area: 'Ecom & OL marketplaces', team: 'Performance, Creative Marketing', task: 'Amazon Audit phase 1', status: 'Done', notes: '' },
+            { area: 'Analysis, Website', team: 'Performance', task: 'Meta ads & Shopify performance analysis', status: 'Done', notes: '' },
+            { area: 'Shoots', team: 'Creative Marketing', task: 'shoot as per crave brand content plan phase 1 on 18th march', status: 'Done', notes: '' },
+            { area: 'Influencers', team: 'Creative Marketing', task: 'Batch B & C for millet chips push', status: 'Done', notes: '' },
+          ]
+        }
+      ]
+    },
+    Monthly: { type: 'tasks', groups: [{ week: 'March 2026', tasks: [
+      { area: 'Website', team: 'Creative Marketing', task: 'GST Audit', status: 'Not Started', notes: 'Information sheet to be filled, discuss timelines with Jakir' },
+      { area: 'Ecom & OL marketplaces', team: 'Creative Marketing, Performance', task: 'Shopify Plan for March', status: 'Not Started', notes: 'Need update from stuti and aditya' },
+      { area: 'Content, Holistic', team: 'Creative Marketing', task: 'Two weeks SM plan', status: 'Not Started', notes: '' },
+      { area: 'Packaging Design', team: 'Creative Marketing', task: 'Pillow Packaging Jowar Chips', status: 'WIP', notes: '' },
+      { area: 'Packaging Design', team: 'Creative Marketing', task: 'Baked Pizza sticks sleeve design changes', status: 'WIP', notes: '' },
+      { area: 'Hiring', team: 'Creative Marketing', task: 'MKT Intern', status: 'Not Started', notes: '' },
+      { area: 'Design', team: 'Creative Marketing, BD', task: 'Aahar 2026 - start working on all requirements aligned', status: 'Not Started', notes: '' },
+    ]}]},
+    Quarterly: { type: 'tasks', groups: [{ week: 'Q1 2026', tasks: [
+      { area: 'Holistic', team: 'Creative Marketing', task: 'Brand Moat Extension plan', status: 'WIP', notes: '' },
+      { area: 'Hiring', team: 'Creative Marketing', task: 'Build out full marketing team', status: 'Not Started', notes: '' },
+    ]}]},
+  },
+  Ecommerce: {
+    Weekly: {
+      type: 'ecom',
+      groups: [
+        {
+          week: '6th April to 10th April',
+          portals: ['Website','Blinkit','Instamart','Zepto','BigBasket','RK World','Amazon Fresh','FirstClub','FK Minutes','JioMart','Others'],
+          days: ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+          grid: {
+            'Website':      ['','BOB meeting for emails conversions quick call','Payday Sale switch to Overdose','TYS meeting','Give 2nd sale requirements','Holiday'],
+            'Blinkit':      ['Follow up Devesh NLC · Close April budgets','Mailed Devesh','','TYS meeting','',''],
+            'Instamart':    ['Budget discussion with Deepthi','Get AS to call Prajval - CM2','CM2 Analyze ads · Ads review call','','Prepare data for meeting · Analysis',''],
+            'Zepto':        ['Follow up for NPIs','19Rs. and 29Rs. deal · Follow up Paridhi for POs','Setting up campaigns with Div','','Prepare data · Analysis',''],
+            'BigBasket':    ['GST finalisation','Get AS to call Saumya','Ads review · PO push','','',''],
+            'RK World':     ['','Speak to Riya on next steps · Offers for April','Map discrepancies · GST phase 1','Execution GST phase 1','Give Phase 2 to Marketing',''],
+            'Amazon Fresh': ['','','','','',''],
+            'FirstClub':    ['','','Speak to Priya on next steps','','',''],
+            'FK Minutes':   ['Follow up with Uday','Follow up with Uday','Follow up with Uday','','',''],
+            'JioMart':      ['','','Follow up with JD','','',''],
+            'Others':       ['Inventory Call · Shruti KT session','Shruti KT session · BoB meeting','','Sit with Heet on Automation · Inventory call','',''],
+          }
+        },
+        {
+          week: '30th March to 4th April',
+          portals: ['Website','Blinkit','Instamart','Zepto','BigBasket','RK World','Amazon Fresh','FirstClub','FK Minutes','JioMart','Others'],
+          days: ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+          grid: {
+            'Website':      ['Payday Sale went live','Placeholder Meeting with Marketing · Snack Overdose','BOB Email · setting up meeting','Leave','Holiday',''],
+            'Blinkit':      ['Follow up Devesh NLC · Close April budgets','Follow up with Devesh','','','',''],
+            'Instamart':    ['Followup Kshitij NPIs · Follow up CDK · FY 26-27 Budget closure','Get AS to call Prajval · Close budgets','','','','Plan set up for the month · in depth review of Ads'],
+            'Zepto':        ['Follow up for NPIs','','Setting up campaigns with Div','','','Plan set up for the month · in depth review of Ads'],
+            'BigBasket':    ['GST finalisation','','Ads review · PO push','','',''],
+            'RK World':     ['Cost sheet updated','Speak to Riya on next steps · Offers for April','DF sort out','','','Sales Analytics'],
+            'Amazon Fresh': ['','','','','','Sales Analytics'],
+            'FirstClub':    ['Speak with Zakk on barcode issue','Speak with Zakk on barcode issue','Get Status on PO','','',''],
+            'FK Minutes':   ['Follow up with Uday','Follow up with Uday','','','','**next steps contingent'],
+            'JioMart':      ['','Sit with JD on Listing process','Sit with JD on Listing process','','',''],
+            'Others':       ['Inventory Call · Instamart Meeting','Inventory Call · KT from Zakk Interview','','','','OMS Overview Meeting - AS'],
+          }
+        }
+      ],
+      tasks: [
+        { area: 'Ecom', team: 'Ecom', task: 'Complete handover of Shopify', status: 'Not Started', notes: '' },
+        { area: 'Ecom', team: 'Ecom', task: 'Onboard BOB', status: 'Not Started', notes: '' },
+        { area: 'Ecom', team: 'Ecom', task: 'Snackible x DataSay - reliability on the model, check accuracy', status: 'Not Started', notes: '' },
+        { area: 'Hiring', team: 'Ecom', task: 'Close with FOs', status: 'Not Started', notes: '' },
+        { area: 'BB', team: 'Ecom', task: 'Analysis of BB - changes to be mailed to Saumya', status: 'Not Started', notes: '' },
+        { area: 'FC', team: 'Ecom', task: 'Get onboarded and marketing strategy sorted', status: 'Not Started', notes: '' },
+        { area: 'JioMart', team: 'Ecom', task: 'Onboarding to be closed with JD', status: 'Not Started', notes: '' },
+        { area: 'Tech', team: 'Ecom', task: 'Delhivery Integration with Shopify to be closed', status: 'Not Started', notes: '' },
+      ]
+    },
+    Monthly: { type: 'tasks', groups: [{ week: 'April 2026', tasks: [
+      { area: 'Swiggy', team: 'Performance', task: 'GTSA Feb campaigns review and optimize', status: 'WIP', notes: '' },
+      { area: 'Zepto', team: 'Performance', task: 'PDA_Top SKU_all KW campaign', status: 'WIP', notes: '' },
+      { area: 'Holi', team: 'Ecom', task: 'Holi hampers strategy', status: 'Not Started', notes: '' },
+    ]}]},
+    Quarterly: { type: 'tasks', groups: [{ week: 'Q1 2026', tasks: [
+      { area: 'All Platforms', team: 'Performance', task: 'Quarterly budget review and reallocation', status: 'Not Started', notes: '' },
+    ]}]},
+  },
+  Operations: { Weekly: { type:'tasks', groups:[{week:'This Week', tasks:[
+    { area:'Ops', team:'Operations', task:'Inventory Call', status:'WIP', notes:'' },
+    { area:'Ops', team:'Operations', task:'OMS Overview Meeting', status:'Not Started', notes:'' },
+  ]}]}, Monthly:{type:'tasks',groups:[{week:'April 2026',tasks:[]}]}, Quarterly:{type:'tasks',groups:[{week:'Q1',tasks:[]}]} },
+  'R&D': { Weekly:{type:'tasks',groups:[{week:'This Week',tasks:[]}]}, Monthly:{type:'tasks',groups:[{week:'April 2026',tasks:[]}]}, Quarterly:{type:'tasks',groups:[{week:'Q1',tasks:[]}]} },
+  FO: { Weekly:{type:'tasks',groups:[{week:'This Week',tasks:[]}]}, Monthly:{type:'tasks',groups:[{week:'April 2026',tasks:[]}]}, Quarterly:{type:'tasks',groups:[{week:'Q1',tasks:[]}]} },
+  B2B: { Weekly:{type:'tasks',groups:[{week:'This Week',tasks:[]}]}, Monthly:{type:'tasks',groups:[{week:'April 2026',tasks:[]}]}, Quarterly:{type:'tasks',groups:[{week:'Q1',tasks:[]}]} },
+  Finance: { Weekly:{type:'tasks',groups:[{week:'This Week',tasks:[]}]}, Monthly:{type:'tasks',groups:[{week:'April 2026',tasks:[]}]}, Quarterly:{type:'tasks',groups:[{week:'Q1',tasks:[]}]} },
+  'GT MT': { Weekly:{type:'tasks',groups:[{week:'This Week',tasks:[]}]}, Monthly:{type:'tasks',groups:[{week:'April 2026',tasks:[]}]}, Quarterly:{type:'tasks',groups:[{week:'Q1',tasks:[]}]} },
+  'GT MT': { Weekly:{type:'tasks',groups:[{week:'This Week',tasks:[]}]}, Monthly:{type:'tasks',groups:[{week:'April 2026',tasks:[]}]}, Quarterly:{type:'tasks',groups:[{week:'Q1',tasks:[]}]} },
+};
+
+// ============================================================
+// STATE
+// ============================================================
+const DEPTS = ['Marketing','Ecommerce','Operations','Finance','R&D','GT MT','FO','B2B'];
+let activeDept = DEPTS[0];
+let activePeriod = 'Weekly';
+let activeView = 'task'; // 'task' | 'grid'
+let liveData = JSON.parse(JSON.stringify(FALLBACK_DATA));
+let pendingStatusUpdate = null;
+let pendingWaTask = null;
+
+// ============================================================
+// INIT
+// ============================================================
+function init() {
+  renderDeptTabs();
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    renderContent();
+    fetchData();
+    setInterval(fetchData, 5 * 60 * 1000);
+  }));
+}
+
+function renderDeptTabs() {
+  const container = document.getElementById('dept-tabs');
+  container.innerHTML = DEPTS.map(d =>
+    `<button class="dept-tab ${d === activeDept ? 'active' : ''}" onclick="setDept('${d}')">${d}</button>`
+  ).join('');
+}
+
+function setDept(dept) {
+  activeDept = dept;
+  activeView = 'task';
+  renderDeptTabs();
+  renderContent();
+}
+
+function setPeriod(p) {
+  activePeriod = p;
+  activeView = 'task';
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.toggle('active', b.textContent === p));
+  renderContent();
+}
+
+function setView(v) {
+  activeView = v;
+  document.getElementById('vbtn-task').classList.toggle('active', v === 'task');
+  document.getElementById('vbtn-grid').classList.toggle('active', v === 'grid');
+  renderContent();
+}
+
+// ============================================================
+// FETCH
+// ============================================================
+async function fetchData() {
+  const url = buildUrl(activeDept, activePeriod);
+  if (APPS_SCRIPT_URL.includes('YOUR_')) return; // placeholder URL, skip
+
+  try {
+    const res = await fetch(url);
+    const json = await res.json();
+    if (json && json.data) {
+      liveData[activeDept][activePeriod] = json.data;
+      renderContent();
+      document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'}) + ' IST';
+    }
+  } catch(e) {
+    // silently use fallback
+  }
+}
+
+// ============================================================
+// RENDER CONTENT
+// ============================================================
+function renderContent() {
+  const data = liveData[activeDept]?.[activePeriod];
+  const isEcom = activeDept === 'Ecommerce';
+  const viewToggle = document.getElementById('view-toggle');
+  viewToggle.style.display = (isEcom && data?.type === 'ecom') ? 'flex' : 'none';
+
+  if (!data) {
+    document.getElementById('main-content').innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div>No data for this period</div>';
+    return;
+  }
+
+  // Build all tasks for stats & filter
+  let allTasks = [];
+  if (data.type === 'ecom') {
+    allTasks = [...(data.tasks || [])];
+  } else {
+    (data.groups || []).forEach(g => allTasks.push(...(g.tasks || [])));
+  }
+
+  updateTeamFilter(allTasks);
+  updateStats(allTasks);
+
+  if (isEcom && data.type === 'ecom' && activeView === 'grid') {
+    renderEcomGrid(data);
+  } else if (data.type === 'ecom') {
+    renderTaskTable(data.groups || [], data.tasks || []);
+  } else {
+    renderTaskTable(data.groups || []);
+  }
+}
+
+function updateTeamFilter(tasks) {
+  const teams = [...new Set(tasks.map(t => t.team).filter(Boolean))].sort();
+  const sel = document.getElementById('team-filter');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">All Teams</option>' + teams.map(t => `<option value="${t}" ${t===cur?'selected':''}>${t}</option>`).join('');
+}
+
+function updateStats(tasks) {
+  const sf = document.getElementById('status-filter').value;
+  const tf = document.getElementById('team-filter').value;
+  const sq = document.getElementById('search-input').value.toLowerCase();
+
+  const filtered = tasks.filter(t => {
+    const s = normalizeStatus(t.status);
+    if (sf && s !== sf) return false;
+    if (tf && t.team !== tf) return false;
+    if (sq && !t.task.toLowerCase().includes(sq) && !(t.area||'').toLowerCase().includes(sq)) return false;
+    return true;
+  });
+
+  document.getElementById('stat-total').textContent = filtered.length;
+  document.getElementById('stat-done').textContent = filtered.filter(t => normalizeStatus(t.status) === 'Done').length;
+  document.getElementById('stat-wip').textContent = filtered.filter(t => normalizeStatus(t.status) === 'WIP').length;
+  document.getElementById('stat-ns').textContent = filtered.filter(t => normalizeStatus(t.status) === 'Not Started').length;
+  document.getElementById('stat-over').textContent = filtered.filter(t => normalizeStatus(t.status) === 'Overdue').length;
+}
+
+function normalizeStatus(s) {
+  if (!s) return 'Not Started';
+  const u = s.trim();
+  if (u === 'Done') return 'Done';
+  if (u === 'WIP') return 'WIP';
+  if (u === 'Overdue') return 'Overdue';
+  return 'Not Started';
+}
+
+function getFilters() {
+  return {
+    sf: document.getElementById('status-filter').value,
+    tf: document.getElementById('team-filter').value,
+    sq: document.getElementById('search-input').value.toLowerCase(),
+  };
+}
+
+function filterTasks(tasks) {
+  const {sf, tf, sq} = getFilters();
+  return tasks.filter(t => {
+    const s = normalizeStatus(t.status);
+    if (sf && s !== sf) return false;
+    if (tf && t.team !== tf) return false;
+    if (sq && !t.task.toLowerCase().includes(sq) && !(t.area||'').toLowerCase().includes(sq)) return false;
+    return true;
+  });
+}
+
+// ============================================================
+// TASK TABLE
+// ============================================================
+function renderTaskTable(groups, extraTasks) {
+  let html = `<table class="task-table">
+    <thead><tr>
+      <th>Task</th>
+      <th style="width:160px">Owner</th>
+      <th style="width:110px">Due Date</th>
+      <th style="width:130px">Status</th>
+      <th style="width:200px">Notes</th>
+      <th style="width:110px">Action</th>
+    </tr></thead><tbody>`;
+
+  let hasRows = false;
+
+  (groups || []).forEach(g => {
+    const filtered = filterTasks(g.tasks || []);
+    if (filtered.length === 0) return;
+    hasRows = true;
+    html += `<tr class="week-header"><td colspan="6">📅 ${g.week}</td></tr>`;
+    filtered.forEach((t, i) => {
+      html += taskRow(t, g.week + '_' + i);
+    });
+  });
+
+  if (extraTasks && extraTasks.length > 0) {
+    const filtered = filterTasks(extraTasks);
+    if (filtered.length > 0) {
+      hasRows = true;
+      html += `<tr class="week-header"><td colspan="6">📋 Extracted Tasks</td></tr>`;
+      filtered.forEach((t, i) => {
+        html += taskRow(t, 'extra_' + i);
+      });
+    }
+  }
+
+  html += '</tbody></table>';
+
+  if (!hasRows) {
+    html = '<div class="empty-state"><div class="empty-icon">🔍</div>No tasks match your filters</div>';
+  }
+
+  document.getElementById('main-content').innerHTML = html;
+}
+
+function taskRow(t, id) {
+  const s = normalizeStatus(t.status);
+  const badgeClass = s.replace(' ', '-');
+  const due = t.due ? `<span style="font-size:10px;color:var(--muted)">${t.due}</span>` : '—';
+  const isOverdue = s === 'Overdue';
+  const rowStyle = isOverdue ? 'background:rgba(250,109,138,0.04);' : '';
+  return `<tr style="${rowStyle}">
+    <td style="font-size:13px;font-weight:500">${t.task || '—'}</td>
+    <td><span style="font-size:11px;color:var(--muted)">${t.owner || '—'}</span></td>
+    <td>${due}</td>
+    <td>
+      <button class="badge ${badgeClass}" onclick="openStatusModal(${JSON.stringify({...t}).replace(/"/g,'&quot;')})">
+        <span class="badge-dot"></span>${s}
+      </button>
+    </td>
+    <td><span class="notes-text">${t.notes || ''}</span></td>
+    <td>
+      <button class="wa-btn" onclick="openWaModal(${JSON.stringify({...t}).replace(/"/g,'&quot;')})">
+        📱 Remind
+      </button>
+    </td>
+  </tr>`;
+}
+
+// ============================================================
+// ECOMMERCE GRID
+// ============================================================
+function renderEcomGrid(data) {
+  let html = '<div class="grid-container">';
+
+  (data.groups || []).forEach(g => {
+    html += `<table class="grid-table" style="margin-bottom:24px;">
+      <tr class="grid-week-header"><td colspan="${g.days.length + 1}">📅 ${g.week}</td></tr>
+      <tr>
+        <th class="portal-col">Portal</th>
+        ${g.days.map(d => `<th>${d}</th>`).join('')}
+      </tr>`;
+
+    (g.portals || []).forEach(portal => {
+      const cells = (g.grid[portal] || []);
+      html += `<tr>
+        <td class="portal-name">${portal}</td>
+        ${g.days.map((_, di) => `<td>${cells[di] || ''}</td>`).join('')}
+      </tr>`;
+    });
+
+    html += '</table>';
+  });
+
+  html += '</div>';
+  document.getElementById('main-content').innerHTML = html;
+}
+
+// ============================================================
+// WHATSAPP MODAL
+// ============================================================
+function openWaModal(task) {
+  pendingWaTask = task;
+  const contacts = DEPT_CONTACTS[activeDept] || {};
+  document.getElementById('wa-owner').value = contacts.owner || '';
+  document.getElementById('wa-manager').value = contacts.manager || '';
+  document.getElementById('wa-task-info').innerHTML = `<b>${task.task}</b><br>Owner: ${task.owner || '—'} · Due: ${task.due || '—'}<br>Status: ${task.status || '—'}`;
+  const msg = `Hi! 👋 This is a reminder about the following task:\n\n📌 *${task.task}*\nOwner: ${task.owner || '—'}\nDue Date: ${task.due || '—'}\nDepartment: ${activeDept}\nStatus: ${task.status || 'Not Started'}\n\nPlease action this task at the earliest. Thank you! 🙏`;
+  document.getElementById('wa-message').value = msg;
+  document.getElementById('wa-modal').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('wa-modal').classList.remove('show');
+  pendingWaTask = null;
+}
+
+function sendWhatsApp() {
+  const owner = document.getElementById('wa-owner').value.trim().replace(/\s/g,'');
+  const manager = document.getElementById('wa-manager').value.trim().replace(/\s/g,'');
+  const msg = encodeURIComponent(document.getElementById('wa-message').value);
+
+  if (!owner && !manager) { showToast('Please enter at least one phone number', 'error'); return; }
+
+  // Open WhatsApp for owner
+  if (owner) {
+    const num = owner.startsWith('+') ? owner.slice(1) : owner;
+    window.open(`https://wa.me/${num}?text=${msg}`, '_blank');
+  }
+
+  // Small delay then open for manager
+  if (manager) {
+    setTimeout(() => {
+      const num = manager.startsWith('+') ? manager.slice(1) : manager;
+      window.open(`https://wa.me/${num}?text=${msg}`, '_blank');
+    }, 600);
+  }
+
+  closeModal();
+  showToast('✅ WhatsApp opened for ' + [owner && 'Owner', manager && 'Manager'].filter(Boolean).join(' & '), 'success');
+}
+
+// ============================================================
+// STATUS UPDATE MODAL
+// ============================================================
+function openStatusModal(task) {
+  pendingStatusUpdate = task;
+  document.getElementById('status-task-info').innerHTML = `<b>${task.task}</b><br>Area: ${task.area || '—'} · Team: ${task.team || '—'}`;
+  document.getElementById('status-select').value = normalizeStatus(task.status);
+  document.getElementById('status-modal').classList.add('show');
+}
+
+function closeStatusModal() {
+  document.getElementById('status-modal').classList.remove('show');
+  pendingStatusUpdate = null;
+}
+
+function confirmStatusUpdate() {
+  if (!pendingStatusUpdate) return;
+  const newStatus = document.getElementById('status-select').value;
+
+  // Update local data
+  const data = liveData[activeDept]?.[activePeriod];
+  if (data) {
+    const allGroups = data.type === 'ecom' ? [...(data.groups||[])].concat([{tasks: data.tasks||[]}]) : (data.groups||[]);
+    allGroups.forEach(g => {
+      (g.tasks||[]).forEach(t => {
+        if (t.task === pendingStatusUpdate.task && t.area === pendingStatusUpdate.area) {
+          t.status = newStatus;
+        }
+      });
+    });
+  }
+
+  closeStatusModal();
+  renderContent();
+  showToast(`Status updated to "${newStatus}"`, 'success');
+
+  // Push to Google Sheets
+  pushStatusUpdate(pendingStatusUpdate, newStatus);
+}
+
+async function pushStatusUpdate(task, newStatus) {
+  if (APPS_SCRIPT_URL.includes('YOUR_')) return;
+  const url = APPS_SCRIPT_URL;
+
+  try {
+    await fetch(url, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'updateStatus', dept: activeDept, period: activePeriod, task: task.task, area: task.area, team: task.team, status: newStatus }),
+    });
+  } catch(e) {
+    showToast('Could not sync to Google Sheets', 'error');
+  }
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ============================================================
+// CLOSE MODALS ON OVERLAY CLICK
+// ============================================================
+document.getElementById('wa-modal').addEventListener('click', function(e) { if(e.target===this) closeModal(); });
+document.getElementById('status-modal').addEventListener('click', function(e) { if(e.target===this) closeStatusModal(); });
+
+init();
+</script>
+</body>
+</html>
