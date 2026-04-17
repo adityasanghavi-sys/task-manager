@@ -515,87 +515,15 @@ const DEPT_CONTACTS = {
 // FALLBACK DATA (shows instantly while fetch runs)
 // ============================================================
 const FALLBACK_DATA = {
-  Marketing: {
-    Weekly: { type: 'tasks', groups: [
-      { week: '30th March – 4th April', tasks: [
-        { area: 'Website', team: 'Creative Marketing', task: 'Close website GST audit and implement all changes', status: 'WIP', notes: '' },
-        { area: 'Website', team: 'Creative Marketing', task: 'New Product Reviews', status: 'Not Started', notes: '' },
-        { area: 'Ecom & OL marketplaces', team: 'Performance', task: 'Qcom analysis', status: 'Not Started', notes: '' },
-        { area: 'Content, Holistic', team: 'Creative Marketing', task: 'Content strategy for new launches in April', status: 'Not Started', notes: '' },
-        { area: 'Content, Holistic', team: 'Creative Marketing', task: 'Brand Moat Extension plan', status: 'WIP', notes: '' },
-        { area: 'Influencers', team: 'Creative Marketing', task: 'Batch A for April', status: 'Not Started', notes: '' },
-        { area: 'Hiring', team: 'Creative Marketing', task: 'MKT Intern', status: 'WIP', notes: '' },
-        { area: 'Hiring', team: 'Creative Marketing', task: 'GD Exec', status: 'WIP', notes: '' },
-        { area: 'Packaging Design', team: 'Creative Marketing', task: 'BD Labels as per requirements', status: 'Not Started', notes: '' },
-        { area: 'Podcast', team: 'Creative Marketing', task: 'Finalize guest, dates, topic etc', status: 'WIP', notes: '' },
-        { area: 'Customer Care', team: 'Customer Care', task: 'Hiring new candidate for CC team', status: 'WIP', notes: '' },
-      ]},
-      { week: '16th – 21st March', tasks: [
-        { area: 'Website', team: 'Creative Marketing', task: 'GST Audit Phase 2', status: 'WIP', notes: '' },
-        { area: 'Ecom & OL marketplaces', team: 'Performance', task: 'Qcom analysis', status: 'Done', notes: '' },
-        { area: 'Ecom & OL marketplaces', team: 'Performance', task: 'Amazon Audit phase 1', status: 'Done', notes: '' },
-        { area: 'Analysis, Website', team: 'Performance', task: 'Meta ads & Shopify performance analysis', status: 'Done', notes: '' },
-        { area: 'Shoots', team: 'Creative Marketing', task: 'Shoot as per crave brand content plan phase 1', status: 'Done', notes: '' },
-        { area: 'Influencers', team: 'Creative Marketing', task: 'Batch B & C for millet chips push', status: 'Done', notes: '' },
-      ]}
-    ]},
-    Monthly: { type: 'tasks', groups: [{ week: 'March 2026', tasks: [
-      { area: 'Website', team: 'Creative Marketing', task: 'GST Audit', status: 'Not Started', notes: 'Information sheet to be filled, discuss timelines with Jakir' },
-      { area: 'Ecom & OL marketplaces', team: 'Creative Marketing, Performance', task: 'Shopify Plan for March', status: 'Not Started', notes: 'Need update from stuti and aditya' },
-      { area: 'Content, Holistic', team: 'Creative Marketing', task: 'Two weeks SM plan', status: 'Not Started', notes: '' },
-      { area: 'Packaging Design', team: 'Creative Marketing', task: 'Pillow Packaging Jowar Chips', status: 'WIP', notes: '' },
-      { area: 'Packaging Design', team: 'Creative Marketing', task: 'Baked Pizza sticks sleeve design changes', status: 'WIP', notes: '' },
-      { area: 'Design', team: 'Creative Marketing, BD', task: 'Aahar 2026 - start working on all requirements aligned', status: 'Not Started', notes: '' },
-    ]}]},
-    Quarterly: { type: 'tasks', groups: [{ week: 'Q1 2026', tasks: [
-      { area: 'Holistic', team: 'Creative Marketing', task: 'Brand Moat Extension plan', status: 'WIP', notes: '' },
-    ]}]},
-  },
-  Ecommerce: {
-    Weekly: {
-      type: 'ecom',
-      groups: [
-        { week: '6th April to 10th April',
-          portals: ['Website','Blinkit','Instamart','Zepto','BigBasket','RK World','Amazon Fresh','FirstClub','FK Minutes','JioMart','Others'],
-          days: ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
-          grid: {
-            'Website':      ['','BOB meeting for emails · Conversions quick call','Payday Sale switch to Overdose','TYS meeting','Give 2nd sale requirements','Holiday'],
-            'Blinkit':      ['Follow up Devesh NLC · Close April budgets','Mailed Devesh','','TYS meeting','',''],
-            'Instamart':    ['Budget discussion with Deepthi','Get AS to call Prajval · CM2','CM2 · Analyze ads · Ads review call','','Prepare data · Analysis',''],
-            'Zepto':        ['Follow up for NPIs','19Rs. and 29Rs. deal · Follow up Paridhi for POs','Setting up campaigns with Div','','Prepare data · Analysis',''],
-            'BigBasket':    ['GST finalisation','Get AS to call Saumya','Ads review · PO push','','',''],
-            'RK World':     ['','Speak to Riya · Offers for April','Map discrepancies · GST phase 1','Execution GST phase 1','Give Phase 2 to Marketing',''],
-            'Amazon Fresh': ['','','','','',''],
-            'FirstClub':    ['','','Speak to Priya on next steps','','',''],
-            'FK Minutes':   ['Follow up with Uday','Follow up with Uday','Follow up with Uday','','',''],
-            'JioMart':      ['','','Follow up with JD','','',''],
-            'Others':       ['Inventory Call · Shruti KT session','Shruti KT session · BoB meeting','','Sit with Heet on Automation','',''],
-          }
-        }
-      ],
-      tasks: [
-        { area: 'Ecom', team: 'Ecommerce', task: 'Complete handover of Shopify', status: 'Not Started', notes: '' },
-        { area: 'Ecom', team: 'Ecommerce', task: 'Onboard BOB', status: 'Not Started', notes: '' },
-        { area: 'JioMart', team: 'Ecommerce', task: 'JioMart onboarding to be closed with JD', status: 'Not Started', notes: '' },
-        { area: 'Tech', team: 'Ecommerce', task: 'Delhivery Integration with Shopify to be closed', status: 'Not Started', notes: '' },
-      ]
-    },
-    Monthly: { type: 'tasks', groups: [{ week: 'April 2026', tasks: [
-      { area: 'Swiggy', team: 'Performance', task: 'GTSA Feb campaigns review and optimize', status: 'WIP', notes: '' },
-      { area: 'Zepto', team: 'Performance', task: 'PDA Top SKU all KW campaign', status: 'WIP', notes: '' },
-    ]}]},
-    Quarterly: { type: 'tasks', groups: [{ week: 'Q1 2026', tasks: [
-      { area: 'All Platforms', team: 'Performance', task: 'Quarterly budget review and reallocation', status: 'Not Started', notes: '' },
-    ]}]},
-  },
-  Operations: { Weekly:{type:'tasks',groups:[{week:'This Week',tasks:[]}]}, Monthly:{type:'tasks',groups:[{week:'April 2026',tasks:[]}]}, Quarterly:{type:'tasks',groups:[{week:'Q1',tasks:[]}]} },
-  Finance:    { Weekly:{type:'tasks',groups:[{week:'This Week',tasks:[]}]}, Monthly:{type:'tasks',groups:[{week:'April 2026',tasks:[]}]}, Quarterly:{type:'tasks',groups:[{week:'Q1',tasks:[]}]} },
-  'R&D':      { Weekly:{type:'tasks',groups:[{week:'This Week',tasks:[]}]}, Monthly:{type:'tasks',groups:[{week:'April 2026',tasks:[]}]}, Quarterly:{type:'tasks',groups:[{week:'Q1',tasks:[]}]} },
-  'GT MT':    { Weekly:{type:'tasks',groups:[{week:'This Week',tasks:[]}]}, Monthly:{type:'tasks',groups:[{week:'April 2026',tasks:[]}]}, Quarterly:{type:'tasks',groups:[{week:'Q1',tasks:[]}]} },
-  FO:         { Weekly:{type:'tasks',groups:[{week:'This Week',tasks:[]}]}, Monthly:{type:'tasks',groups:[{week:'April 2026',tasks:[]}]}, Quarterly:{type:'tasks',groups:[{week:'Q1',tasks:[]}]} },
-  B2B:        { Weekly:{type:'tasks',groups:[{week:'This Week',tasks:[]}]}, Monthly:{type:'tasks',groups:[{week:'April 2026',tasks:[]}]}, Quarterly:{type:'tasks',groups:[{week:'Q1',tasks:[]}]} },
-};
-// ============================================================
+  Marketing:  { Weekly:{type:'tasks',groups:[]}, Monthly:{type:'tasks',groups:[]}, Quarterly:{type:'tasks',groups:[]} },
+  Ecommerce:  { Weekly:{type:'ecom',groups:[],tasks:[]}, Monthly:{type:'tasks',groups:[]}, Quarterly:{type:'tasks',groups:[]} },
+  Operations: { Weekly:{type:'tasks',groups:[]}, Monthly:{type:'tasks',groups:[]}, Quarterly:{type:'tasks',groups:[]} },
+  Finance:    { Weekly:{type:'tasks',groups:[]}, Monthly:{type:'tasks',groups:[]}, Quarterly:{type:'tasks',groups:[]} },
+  'R&D':      { Weekly:{type:'tasks',groups:[]}, Monthly:{type:'tasks',groups:[]}, Quarterly:{type:'tasks',groups:[]} },
+  'GT MT':    { Weekly:{type:'tasks',groups:[]}, Monthly:{type:'tasks',groups:[]}, Quarterly:{type:'tasks',groups:[]} },
+  FO:         { Weekly:{type:'tasks',groups:[]}, Monthly:{type:'tasks',groups:[]}, Quarterly:{type:'tasks',groups:[]} },
+  B2B:        { Weekly:{type:'tasks',groups:[]}, Monthly:{type:'tasks',groups:[]}, Quarterly:{type:'tasks',groups:[]} },
+};// ============================================================
 // STATE
 // ============================================================
 const DEPTS = ['Marketing','Ecommerce','Operations','Finance','R&D','GT MT','FO','B2B'];
@@ -690,11 +618,13 @@ function fetchData() {
     if (json && json.data) {
       if (!liveData[dept]) liveData[dept] = {};
       liveData[dept][period] = json.data;
-      // Only re-render if user is still on the same tab
+      // Always update the data, re-render if currently viewing this tab
       if (activeDept === dept && activePeriod === period) {
         renderContent();
-        document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'}) + ' IST';
       }
+      document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'}) + ' IST';
+    } else if (json && json.error) {
+      console.error('Apps Script error:', json.error);
     }
   };
 
@@ -732,6 +662,8 @@ function fetchAllDepts() {
             renderContent();
             document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'}) + ' IST';
           }
+        } else if (json && json.error) {
+          console.error('Apps Script error for', d, p, ':', json.error);
         }
       };
       script.onerror = function() { delete window[cbName]; if (document.head.contains(script)) document.head.removeChild(script); };
@@ -750,7 +682,7 @@ function renderContent() {
   viewToggle.style.display = (isEcom && data?.type === 'ecom') ? 'flex' : 'none';
 
   if (!data) {
-    document.getElementById('main-content').innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div>No data for this period</div>';
+    document.getElementById('main-content').innerHTML = '<div class="loading-state"><div class="loading-spinner"></div>Loading...</div>';
     return;
   }
 
@@ -869,7 +801,10 @@ function renderTaskTable(groups, extraTasks) {
   html += '</tbody></table>';
 
   if (!hasRows) {
-    html = '<div class="empty-state"><div class="empty-icon">🔍</div>No tasks match your filters</div>';
+    const hasFilters = document.getElementById('search-input').value || document.getElementById('status-filter').value || document.getElementById('team-filter').value;
+    html = hasFilters
+      ? '<div class="empty-state"><div class="empty-icon">🔍</div>No tasks match your filters</div>'
+      : '<div class="loading-state"><div class="loading-spinner"></div>Fetching from sheet...</div>';
   }
 
   document.getElementById('main-content').innerHTML = html;
