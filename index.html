@@ -735,11 +735,13 @@ function updateStats(tasks) {
 
 function normalizeStatus(s) {
   if (!s) return 'Not Started';
-  const u = s.trim();
-  if (u === 'Done') return 'Done';
-  if (u === 'WIP') return 'WIP';
-  if (u === 'Overdue') return 'Overdue';
-  return 'Not Started';
+  const u = s.trim().toLowerCase();
+  if (['done', 'complete', 'completed', 'closed', 'finished'].includes(u)) return 'Done';
+  if (['wip', 'in progress', 'in-progress', 'ongoing', 'active', 'started'].includes(u)) return 'WIP';
+  if (['overdue', 'delayed', 'missed', 'late'].includes(u)) return 'Overdue';
+  if (['pending', 'not started', 'not-started', 'todo', 'to do', 'open', 'planned', '-', ''].includes(u)) return 'Not Started';
+  // If it has a value but doesn't match, show it as-is with WIP styling
+  return s.trim();
 }
 
 function getFilters() {
@@ -812,7 +814,8 @@ function renderTaskTable(groups, extraTasks) {
 
 function taskRow(t, id) {
   const s = normalizeStatus(t.status);
-  const badgeClass = s.replace(' ', '-');
+  const knownStatuses = ['Done', 'WIP', 'Overdue', 'Not Started'];
+  const badgeClass = knownStatuses.includes(s) ? s.replace(' ', '-') : 'WIP';
   const isOverdue = s === 'Overdue';
   const rowStyle = isOverdue ? 'background:rgba(250,109,138,0.04);' : '';
   const areas = (t.area || '').split(',').map(a => `<span class="area-tag">${a.trim()}</span>`).join('');
