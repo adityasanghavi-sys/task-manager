@@ -739,8 +739,8 @@ function normalizeStatus(s) {
   if (['done', 'complete', 'completed', 'closed', 'finished'].includes(u)) return 'Done';
   if (['wip', 'in progress', 'in-progress', 'ongoing', 'active', 'started'].includes(u)) return 'WIP';
   if (['overdue', 'delayed', 'missed', 'late'].includes(u)) return 'Overdue';
-  if (['pending', 'not started', 'not-started', 'todo', 'to do', 'open', 'planned', '-', ''].includes(u)) return 'Not Started';
-  // If it has a value but doesn't match, show it as-is with WIP styling
+  if (['pending', 'not started', 'not-started', 'todo', 'to do', 'open', '-', ''].includes(u)) return 'Not Started';
+  // Show frequency-style values as-is
   return s.trim();
 }
 
