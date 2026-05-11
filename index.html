@@ -766,18 +766,52 @@ function filterTasks(tasks) {
 }
 
 // ============================================================
-// TASK TABLE (WITH ACCORDION TOGGLES)
+// TASK TABLE (WITH ACCORDION TOGGLES & DYNAMIC HEADERS)
 // ============================================================
 function renderTaskTable(groups, extraTasks) {
+  
+  // 1. Set the default headers
+  let hArea = "Area / Category";
+  let hTeam = "Team / POC";
+  let hTask = "Task";
+  let hNotes = "Notes";
+
+  // 2. Smart Detector: Swap headers based on the active department!
+  if (activeDept === 'R&D') {
+    hArea = "Product / Area";
+    hTeam = "POC";
+    hTask = "Flavours / Timeline";
+    hNotes = "Remarks & Timing";
+  } else if (activeDept === 'B2B') {
+    hArea = "Client Name";
+    hTeam = "POC";
+    hTask = "Actionable";
+    hNotes = "Industry & Notes";
+  } else if (activeDept === 'Operations') {
+    hArea = "Client / PO";
+    hTeam = "POC";
+    hTask = "Actionable";
+    hNotes = "Due Date & Notes";
+  } else if (activeDept === 'Finance') {
+    hArea = "Category";
+    hTeam = "Concerned";
+    hTask = "Task";
+    hNotes = "Remarks & Deadline";
+  }
+
+  // 3. Inject the smart headers into the table
   let html = `<table class="task-table">
     <thead><tr>
-      <th style="width:180px">Area / Category</th>
-      <th style="width:160px">Team / POC</th>
-      <th>Task</th>
+      <th style="width:180px">${hArea}</th>
+      <th style="width:160px">${hTeam}</th>
+      <th>${hTask}</th>
       <th style="width:130px">Status</th>
-      <th style="width:220px">Notes</th>
+      <th style="width:220px">${hNotes}</th>
       <th style="width:110px">Action</th>
     </tr></thead>`;
+
+  let hasRows = false;
+  const safeGroups = groups || [];
 
   let hasRows = false;
   const safeGroups = groups || [];
