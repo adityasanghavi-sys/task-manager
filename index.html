@@ -785,11 +785,11 @@ function renderTaskTable(groups, extraTasks) {
     globalTeam = "Concerned"; 
     globalTask = "Details"; 
     globalNotes = "Notes";
-  }
   } else if (activeDept === 'R&D' && activePeriod === 'Weekly') {
     globalArea = "Week"; globalTeam = "POC"; globalTask = "Task"; globalNotes = "Remarks";
   }
 
+  let html = `<table class="task-table">`;
   let html = `<table class="task-table">`;
 
   // 2. Only print the global header at the top if it is NOT R&D Monthly
