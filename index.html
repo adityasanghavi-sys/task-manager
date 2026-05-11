@@ -775,32 +775,68 @@ function renderTaskTable(groups, extraTasks) {
       <th style="width:130px">Status</th>
       <th style="width:220px">Notes</th>
       <th style="width:110px">Action</th>
-    </tr></thead><tbody>`;
+    </tr></thead>`;
 
   let hasRows = false;
 
-  (groups || []).forEach(g => {
+  (groups || []).forEach((g, groupIndex) => {
     const filtered = filterTasks(g.tasks || []);
     if (filtered.length === 0) return;
     hasRows = true;
-    html += `<tr class="week-header"><td colspan="6">📅 ${g.week}</td></tr>`;
+
+    // Smart Toggle: Open the first group (newest week), close all the older ones
+    const isOpen = groupIndex === 0;
+    const displayStyle = isOpen ? '' : 'display:none;';
+    const icon = isOpen ? '−' : '+';
+
+    // 1. The Header (Always visible, turns your mouse into a pointer)
+    html += `<tbody>
+      <tr class="week-header" onclick="toggleGroup('g_${groupIndex}')" style="cursor:pointer;" title="Click to expand/collapse">
+        <td colspan="6">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span>📅 ${g.week}</span>
+            <span id="icon-g_${groupIndex}" style="font-size:16px; font-weight:bold;">${icon}</span>
+          </div>
+        </td>
+      </tr>
+    </tbody>`;
+
+    // 2. The Tasks (Hidden or Shown based on the displayStyle above)
+    html += `<tbody id="tasks-g_${groupIndex}" style="${displayStyle}">`;
     filtered.forEach((t, i) => {
       html += taskRow(t, g.week + '_' + i);
     });
+    html += `</tbody>`;
   });
 
   if (extraTasks && extraTasks.length > 0) {
     const filtered = filterTasks(extraTasks);
     if (filtered.length > 0) {
       hasRows = true;
-      html += `<tr class="week-header"><td colspan="6">📋 Extracted Tasks</td></tr>`;
+      const isOpen = groups.length === 0; 
+      const displayStyle = isOpen ? '' : 'display:none;';
+      const icon = isOpen ? '−' : '+';
+
+      html += `<tbody>
+        <tr class="week-header" onclick="toggleGroup('extra')" style="cursor:pointer;" title="Click to expand/collapse">
+          <td colspan="6">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span>📋 Extracted Tasks</span>
+              <span id="icon-extra" style="font-size:16px; font-weight:bold;">${icon}</span>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+      <tbody id="tasks-extra" style="${displayStyle}">`;
+
       filtered.forEach((t, i) => {
         html += taskRow(t, 'extra_' + i);
       });
+      html += `</tbody>`;
     }
   }
 
-  html += '</tbody></table>';
+  html += '</table>';
 
   if (!hasRows) {
     const hasFilters = document.getElementById('search-input').value || document.getElementById('status-filter').value || document.getElementById('team-filter').value;
@@ -810,6 +846,24 @@ function renderTaskTable(groups, extraTasks) {
   }
 
   document.getElementById('main-content').innerHTML = html;
+}
+// ============================================================
+// ACCORDION TOGGLE
+// ============================================================
+function toggleGroup(id) {
+  const tbody = document.getElementById('tasks-' + id);
+  const icon = document.getElementById('icon-' + id);
+  
+  if (!tbody || !icon) return;
+
+  if (tbody.style.display === 'none') {
+    tbody.style.display = '';  // Show tasks
+    icon.textContent = '−';    // Change icon to minus
+  } else {
+    tbody.style.display = 'none'; // Hide tasks
+    icon.textContent = '+';       // Change icon to plus
+  }
+}
 }
 
 function taskRow(t, id) {
