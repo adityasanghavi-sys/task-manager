@@ -675,20 +675,18 @@ function renderContent() {
     document.getElementById('main-content').innerHTML = '<div class="loading-state"><div class="loading-spinner"></div>Loading...</div>';
     return;
   }
-
- // --- DYNAMIC STATS LOGIC ---
+// --- DYNAMIC STATS LOGIC ---
   let statsTasks = [];
   
   if (data.type === 'ecom') {
-    // Ecommerce uses a completely custom grid layout
     statsTasks = [...(data.tasks || [])];
   } else if (data.groups && data.groups.length > 0) {
     
-    // Marketing & Operations ONLY count the newest week (Index 0)
-    if (activeDept === 'Marketing' || activeDept === 'Operations') {
+    // Marketing & Operations ONLY count the newest folder IF they are on the 'Weekly' tab
+    if ((activeDept === 'Marketing' || activeDept === 'Operations') && activePeriod === 'Weekly') {
       statsTasks = [...(data.groups[0].tasks || [])];
     } 
-    // Everyone else (Finance, B2B, R&D, etc.) counts ALL tasks across ALL folders
+    // If it's Quarterly, Monthly, or any other department, COUNT EVERYTHING!
     else {
       data.groups.forEach(g => statsTasks.push(...(g.tasks || [])));
     }
