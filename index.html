@@ -316,7 +316,7 @@
     --done:#0a7a4a; --wip:#8a6000; --notstarted:#44486a; --overdue:#b02040;
   }
 
-  /* Universal text contrast rules applied across all themes */
+  /* Universal text contrast rules */
   .stat-label { color: var(--stat-label, var(--muted)) !important; }
   .stat-val { color: var(--text-strong, var(--text)) !important; }
   .stat-card.s-done .stat-val { color: var(--done) !important; }
@@ -378,10 +378,8 @@
   </div>
 </div>
 
-<!-- DEPT TABS -->
 <div class="dept-tabs" id="dept-tabs"></div>
 
-<!-- CONTROLS -->
 <div class="controls">
   <div class="period-selector" id="period-selector">
     <button class="period-btn active" onclick="setPeriod('Weekly')" id="pbtn-Weekly">Weekly</button>
@@ -407,7 +405,6 @@
   <button class="refresh-btn" onclick="fetchData()">↻ Refresh</button>
 </div>
 
-<!-- STATS -->
 <div class="stats-bar" id="stats-bar">
   <div class="stat-card"><div class="stat-val" id="stat-total">—</div><div class="stat-label">Total Tasks</div></div>
   <div class="stat-card s-done"><div class="stat-val" id="stat-done">—</div><div class="stat-label">Done</div></div>
@@ -416,12 +413,10 @@
   <div class="stat-card s-over"><div class="stat-val" id="stat-over">—</div><div class="stat-label">Overdue</div></div>
 </div>
 
-<!-- MAIN -->
 <div class="main" id="main-content">
   <div class="loading-state"><div class="loading-spinner"></div>Loading tasks...</div>
 </div>
 
-<!-- WHATSAPP MODAL -->
 <div class="modal-overlay" id="wa-modal">
   <div class="modal">
     <div class="modal-title">📱 Send WhatsApp Reminder</div>
@@ -445,7 +440,6 @@
   </div>
 </div>
 
-<!-- STATUS MODAL -->
 <div class="modal-overlay" id="status-modal">
   <div class="modal">
     <div class="modal-title">Update Status</div>
@@ -523,7 +517,9 @@ const FALLBACK_DATA = {
   'GT MT':    { Weekly:{type:'tasks',groups:[]}, Monthly:{type:'tasks',groups:[]}, Quarterly:{type:'tasks',groups:[]} },
   FO:         { Weekly:{type:'tasks',groups:[]}, Monthly:{type:'tasks',groups:[]}, Quarterly:{type:'tasks',groups:[]} },
   B2B:        { Weekly:{type:'tasks',groups:[]}, Monthly:{type:'tasks',groups:[]}, Quarterly:{type:'tasks',groups:[]} },
-};// ============================================================
+};
+
+// ============================================================
 // STATE
 // ============================================================
 const DEPTS = ['Marketing','Ecommerce','Operations','Finance','R&D','GT MT','FO','B2B'];
@@ -603,7 +599,6 @@ function setView(v) {
 // ============================================================
 function fetchData() {
   if (APPS_SCRIPT_URL.includes('YOUR_')) return;
-  // Capture dept+period NOW so callback uses correct values even if user switches tabs
   const dept   = activeDept;
   const period = activePeriod;
   const url    = buildUrl(dept, period);
@@ -618,7 +613,6 @@ function fetchData() {
     if (json && json.data) {
       if (!liveData[dept]) liveData[dept] = {};
       liveData[dept][period] = json.data;
-      // Always update the data, re-render if currently viewing this tab
       if (activeDept === dept && activePeriod === period) {
         renderContent();
       }
@@ -636,16 +630,14 @@ function fetchData() {
   document.head.appendChild(script);
 }
 
-// Pre-fetch all depts so switching tabs shows live data immediately
 function fetchAllDepts() {
-  // Show syncing indicator
   const lu = document.getElementById('last-updated');
   if (lu) lu.textContent = '⟳ Syncing...';
-  fetchData(); // fetch active first
+  fetchData(); 
   DEPTS.forEach(function(dept) {
     const periods = DEPT_PERIODS[dept] || ['Weekly','Monthly'];
     periods.forEach(function(period) {
-      if (dept === activeDept && period === activePeriod) return; // already fetching
+      if (dept === activeDept && period === activePeriod) return; 
       if (APPS_SCRIPT_URL.includes('YOUR_')) return;
       const d = dept, p = period;
       const url = buildUrl(d, p);
@@ -662,8 +654,6 @@ function fetchAllDepts() {
             renderContent();
             document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'}) + ' IST';
           }
-        } else if (json && json.error) {
-          console.error('Apps Script error for', d, p, ':', json.error);
         }
       };
       script.onerror = function() { delete window[cbName]; if (document.head.contains(script)) document.head.removeChild(script); };
@@ -686,7 +676,6 @@ function renderContent() {
     return;
   }
 
-  // Build all tasks for stats & filter
   let allTasks = [];
   if (data.type === 'ecom') {
     allTasks = [...(data.tasks || [])];
@@ -740,7 +729,6 @@ function normalizeStatus(s) {
   if (['wip', 'in progress', 'in-progress', 'ongoing', 'active', 'started'].includes(u)) return 'WIP';
   if (['overdue', 'delayed', 'missed', 'late'].includes(u)) return 'Overdue';
   if (['pending', 'not started', 'not-started', 'todo', 'to do', 'open', '-', ''].includes(u)) return 'Not Started';
-  // Show frequency-style values as-is
   return s.trim();
 }
 
@@ -764,7 +752,7 @@ function filterTasks(tasks) {
 }
 
 // ============================================================
-// TASK TABLE
+// TASK TABLE (WITH ACCORDION TOGGLES)
 // ============================================================
 function renderTaskTable(groups, extraTasks) {
   let html = `<table class="task-table">
@@ -778,8 +766,9 @@ function renderTaskTable(groups, extraTasks) {
     </tr></thead>`;
 
   let hasRows = false;
+  const safeGroups = groups || [];
 
-  (groups || []).forEach((g, groupIndex) => {
+  safeGroups.forEach((g, groupIndex) => {
     const filtered = filterTasks(g.tasks || []);
     if (filtered.length === 0) return;
     hasRows = true;
@@ -789,7 +778,6 @@ function renderTaskTable(groups, extraTasks) {
     const displayStyle = isOpen ? '' : 'display:none;';
     const icon = isOpen ? '−' : '+';
 
-    // 1. The Header (Always visible, turns your mouse into a pointer)
     html += `<tbody>
       <tr class="week-header" onclick="toggleGroup('g_${groupIndex}')" style="cursor:pointer;" title="Click to expand/collapse">
         <td colspan="6">
@@ -799,12 +787,11 @@ function renderTaskTable(groups, extraTasks) {
           </div>
         </td>
       </tr>
-    </tbody>`;
-
-    // 2. The Tasks (Hidden or Shown based on the displayStyle above)
-    html += `<tbody id="tasks-g_${groupIndex}" style="${displayStyle}">`;
+    </tbody>
+    <tbody id="tasks-g_${groupIndex}" style="${displayStyle}">`;
+    
     filtered.forEach((t, i) => {
-      html += taskRow(t, g.week + '_' + i);
+      html += taskRow(t, 'g_' + groupIndex + '_' + i);
     });
     html += `</tbody>`;
   });
@@ -813,7 +800,7 @@ function renderTaskTable(groups, extraTasks) {
     const filtered = filterTasks(extraTasks);
     if (filtered.length > 0) {
       hasRows = true;
-      const isOpen = groups.length === 0; 
+      const isOpen = safeGroups.length === 0; 
       const displayStyle = isOpen ? '' : 'display:none;';
       const icon = isOpen ? '−' : '+';
 
@@ -847,8 +834,9 @@ function renderTaskTable(groups, extraTasks) {
 
   document.getElementById('main-content').innerHTML = html;
 }
+
 // ============================================================
-// ACCORDION TOGGLE
+// ACCORDION TOGGLE FUNCTION
 // ============================================================
 function toggleGroup(id) {
   const tbody = document.getElementById('tasks-' + id);
@@ -857,13 +845,12 @@ function toggleGroup(id) {
   if (!tbody || !icon) return;
 
   if (tbody.style.display === 'none') {
-    tbody.style.display = '';  // Show tasks
-    icon.textContent = '−';    // Change icon to minus
+    tbody.style.display = '';
+    icon.textContent = '−';
   } else {
-    tbody.style.display = 'none'; // Hide tasks
-    icon.textContent = '+';       // Change icon to plus
+    tbody.style.display = 'none';
+    icon.textContent = '+';
   }
-}
 }
 
 function taskRow(t, id) {
@@ -946,13 +933,11 @@ function sendWhatsApp() {
 
   if (!owner && !manager) { showToast('Please enter at least one phone number', 'error'); return; }
 
-  // Open WhatsApp for owner
   if (owner) {
     const num = owner.startsWith('+') ? owner.slice(1) : owner;
     window.open(`https://wa.me/${num}?text=${msg}`, '_blank');
   }
 
-  // Small delay then open for manager
   if (manager) {
     setTimeout(() => {
       const num = manager.startsWith('+') ? manager.slice(1) : manager;
@@ -983,7 +968,6 @@ function confirmStatusUpdate() {
   if (!pendingStatusUpdate) return;
   const newStatus = document.getElementById('status-select').value;
 
-  // Update local data
   const data = liveData[activeDept]?.[activePeriod];
   if (data) {
     const allGroups = data.type === 'ecom' ? [...(data.groups||[])].concat([{tasks: data.tasks||[]}]) : (data.groups||[]);
@@ -999,8 +983,6 @@ function confirmStatusUpdate() {
   closeStatusModal();
   renderContent();
   showToast(`Status updated to "${newStatus}"`, 'success');
-
-  // Push to Google Sheets
   pushStatusUpdate(pendingStatusUpdate, newStatus);
 }
 
@@ -1036,12 +1018,10 @@ function showToast(msg, type = 'success') {
 document.getElementById('wa-modal').addEventListener('click', function(e) { if(e.target===this) closeModal(); });
 document.getElementById('status-modal').addEventListener('click', function(e) { if(e.target===this) closeStatusModal(); });
 
-// Re-fetch when user returns to this browser tab
 document.addEventListener('visibilitychange', function() {
   if (document.visibilityState === 'visible') fetchAllDepts();
 });
 
-// Re-fetch when window regains focus
 window.addEventListener('focus', fetchAllDepts);
 
 init();
