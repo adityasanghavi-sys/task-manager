@@ -898,11 +898,11 @@ function renderTaskTable(groups, extraTasks) {
 
   html += '</table>';
 
-  if (!hasRows) {
+ if (!hasRows) {
     const hasFilters = document.getElementById('search-input').value || document.getElementById('status-filter').value || document.getElementById('team-filter').value;
     html = hasFilters
       ? '<div class="empty-state"><div class="empty-icon">🔍</div>No tasks match your filters</div>'
-      : '<div class="loading-state"><div class="loading-spinner"></div>Fetching from sheet...</div>';
+      : '<div class="empty-state"><div class="empty-icon">📝</div>The plan has not been updated yet</div>';
   }
 
   document.getElementById('main-content').innerHTML = html;
