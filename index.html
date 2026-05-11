@@ -765,49 +765,40 @@ function filterTasks(tasks) {
   });
 }
 // ============================================================
-// TASK TABLE (WITH ACCORDION TOGGLES & DYNAMIC HEADERS)
+// TASK TABLE (WITH PER-CATEGORY DYNAMIC HEADERS)
 // ============================================================
 function renderTaskTable(groups, extraTasks) {
-  
-  // 1. Set Default Headers
-  let hArea = "Area / Category";
-  let hTeam = "Team / POC";
-  let hTask = "Task";
-  let hNotes = "Notes";
+  const isRDMonthly = (activeDept === 'R&D' && activePeriod === 'Monthly');
 
- // 2. Smart Headers (Changes based on the tab you click!)
-  if (activeDept === 'R&D' && activePeriod === 'Monthly') {  // <-- ADD THE PERIOD CHECK HERE!
-    hArea = "Item / Focus";
-    hTeam = "POC";
-    hTask = "Details / Timeline";
-    hNotes = "Updates & Remarks";
-  } else if (activeDept === 'B2B') {
-    hArea = "Client Name";
-    hTeam = "POC";
-    hTask = "Actionable";
-    hNotes = "Industry & Notes";
+  // 1. Set Global Headers (For all standard tabs)
+  let globalArea = "Area / Category";
+  let globalTeam = "Team / POC";
+  let globalTask = "Task";
+  let globalNotes = "Notes";
+
+  if (activeDept === 'B2B') {
+    globalArea = "Client Name"; globalTeam = "POC"; globalTask = "Actionable"; globalNotes = "Industry & Notes";
   } else if (activeDept === 'Operations') {
-    hArea = "Client / PO";
-    hTeam = "POC";
-    hTask = "Actionable";
-    hNotes = "Due Date & Notes";
+    globalArea = "Client / PO"; globalTeam = "POC"; globalTask = "Actionable"; globalNotes = "Due Date & Notes";
   } else if (activeDept === 'Finance') {
-    hArea = "Category";
-    hTeam = "Concerned";
-    hTask = "Task";
-    hNotes = "Remarks & Deadline";
+    globalArea = "Category"; globalTeam = "Concerned"; globalTask = "Task"; globalNotes = "Remarks & Deadline";
+  } else if (activeDept === 'R&D' && activePeriod === 'Weekly') {
+    globalArea = "Week"; globalTeam = "POC"; globalTask = "Task"; globalNotes = "Remarks";
   }
 
-  // 3. Inject the smart headers into the table
-  let html = `<table class="task-table">
-    <thead><tr>
-      <th style="width:180px">${hArea}</th>
-      <th style="width:160px">${hTeam}</th>
-      <th>${hTask}</th>
+  let html = `<table class="task-table">`;
+
+  // 2. Only print the global header at the top if it is NOT R&D Monthly
+  if (!isRDMonthly) {
+    html += `<thead><tr>
+      <th style="width:180px">${globalArea}</th>
+      <th style="width:160px">${globalTeam}</th>
+      <th>${globalTask}</th>
       <th style="width:130px">Status</th>
-      <th style="width:220px">${hNotes}</th>
+      <th style="width:220px">${globalNotes}</th>
       <th style="width:110px">Action</th>
     </tr></thead>`;
+  }
 
   let hasRows = false;
   const safeGroups = groups || [];
@@ -817,7 +808,6 @@ function renderTaskTable(groups, extraTasks) {
     if (filtered.length === 0) return;
     hasRows = true;
 
-    // Smart Toggle: Open the first group (newest week), close all the older ones
     const isOpen = groupIndex === 0;
     const displayStyle = isOpen ? '' : 'display:none;';
     const icon = isOpen ? '−' : '+';
@@ -833,7 +823,35 @@ function renderTaskTable(groups, extraTasks) {
       </tr>
     </tbody>
     <tbody id="tasks-g_${groupIndex}" style="${displayStyle}">`;
-    
+
+    // 3. INJECT SPECIFIC HEADERS INSIDE EACH FOLDER FOR R&D MONTHLY!
+    if (isRDMonthly) {
+       let catArea = "PRODUCT"; 
+       let catTeam = "POC"; 
+       let catTask = "FLAVOURS"; 
+       let catNotes = "REMARKS";
+       
+       let upperWeek = (g.week || '').toUpperCase();
+
+       if (upperWeek.includes('TRIALS')) {
+           catArea = "TRIALS"; catTask = "TIMELINE"; catNotes = "REMARKS";
+       } else if (upperWeek.includes('VISITS')) {
+           catArea = "VISITS"; catTask = "TIMELINE"; catNotes = "PURPOSE / REMARKS";
+       } else if (upperWeek.includes('EPI')) {
+           catArea = "EPI"; catTask = "PROBLEM"; catNotes = "SOLUTION";
+       }
+
+       // Print a mini-header row inside the folder!
+       html += `<tr>
+          <th style="width:180px">${catArea}</th>
+          <th style="width:160px">${catTeam}</th>
+          <th>${catTask}</th>
+          <th style="width:130px">STATUS</th>
+          <th style="width:220px">${catNotes}</th>
+          <th style="width:110px">ACTION</th>
+       </tr>`;
+    }
+
     filtered.forEach((t, i) => {
       html += taskRow(t, 'g_' + groupIndex + '_' + i);
     });
@@ -859,6 +877,17 @@ function renderTaskTable(groups, extraTasks) {
         </tr>
       </tbody>
       <tbody id="tasks-extra" style="${displayStyle}">`;
+
+      if (isRDMonthly) {
+         html += `<tr>
+            <th style="width:180px">ITEM</th>
+            <th style="width:160px">POC</th>
+            <th>DETAILS</th>
+            <th style="width:130px">STATUS</th>
+            <th style="width:220px">REMARKS</th>
+            <th style="width:110px">ACTION</th>
+         </tr>`;
+      }
 
       filtered.forEach((t, i) => {
         html += taskRow(t, 'extra_' + i);
