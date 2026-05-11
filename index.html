@@ -522,7 +522,8 @@ const FALLBACK_DATA = {
 // ============================================================
 // STATE
 // ============================================================
-const DEPTS = ['Marketing','Ecommerce','Operations','Finance','R&D','GT MT','FO','B2B'];
+const REAL_DEPTS = ['Marketing','Ecommerce','Operations','Finance','R&D','GT MT','FO','B2B'];
+const DEPTS = ['Summary', 'Marketing','Ecommerce','Operations','Finance','R&D','GT MT','FO','B2B'];
 let activeDept = DEPTS[0];
 let activePeriod = 'Weekly';
 let activeView = 'task'; // 'task' | 'grid'
@@ -565,21 +566,33 @@ const DEPT_PERIODS = {
 function setDept(dept) {
   activeDept = dept;
   activeView = 'task';
+  
+  const isSum = (dept === 'Summary');
+  document.getElementById('period-selector').style.display = isSum ? 'none' : 'flex';
+  document.getElementById('search-input').style.display = isSum ? 'none' : 'block';
+  document.getElementById('status-filter').style.display = isSum ? 'none' : 'block';
+  document.getElementById('team-filter').style.display = isSum ? 'none' : 'block';
+  document.getElementById('stats-bar').style.display = isSum ? 'none' : 'flex';
+
+  if (isSum) {
+    renderDeptTabs();
+    renderContent();
+    return;
+  }
+
   // Reset period to first available for this dept
   const periods = DEPT_PERIODS[dept] || ['Weekly','Monthly','Quarterly'];
-  if (!periods.includes(activePeriod)) {
-    activePeriod = periods[0];
-  }
-  // Show/hide period buttons
+  if (!periods.includes(activePeriod)) activePeriod = periods[0];
+  
   ['Weekly','Monthly','Quarterly'].forEach(p => {
     const btn = document.getElementById('pbtn-' + p);
     if (btn) btn.style.display = periods.includes(p) ? '' : 'none';
   });
+  
   document.querySelectorAll('.period-btn').forEach(b => b.classList.toggle('active', b.textContent === activePeriod));
   renderDeptTabs();
   renderContent();
 }
-
 function setPeriod(p) {
   activePeriod = p;
   activeView = 'task';
@@ -634,7 +647,7 @@ function fetchAllDepts() {
   const lu = document.getElementById('last-updated');
   if (lu) lu.textContent = '⟳ Syncing...';
   fetchData(); 
-  DEPTS.forEach(function(dept) {
+  REAL_DEPTS.forEach(function(dept) {
     const periods = DEPT_PERIODS[dept] || ['Weekly','Monthly'];
     periods.forEach(function(period) {
       if (dept === activeDept && period === activePeriod) return; 
@@ -666,11 +679,16 @@ function fetchAllDepts() {
 // RENDER CONTENT
 // ============================================================
 function renderContent() {
+  if (activeDept === 'Summary') {
+    renderSummaryView();
+    return;
+  }
+  document.getElementById('stats-bar').style.display = 'flex'; 
+
   const data = liveData[activeDept]?.[activePeriod];
   const isEcom = activeDept === 'Ecommerce';
   const viewToggle = document.getElementById('view-toggle');
   viewToggle.style.display = (isEcom && data?.type === 'ecom') ? 'flex' : 'none';
-
   if (!data) {
     document.getElementById('main-content').innerHTML = '<div class="loading-state"><div class="loading-spinner"></div>Loading...</div>';
     return;
@@ -1102,6 +1120,94 @@ document.addEventListener('visibilitychange', function() {
 window.addEventListener('focus', fetchAllDepts);
 
 init();
+// ============================================================
+// SUMMARY VIEW ENGINE
+// ============================================================
+function renderSummaryView() {
+  let html = `
+  <div style="padding-bottom: 24px;">
+    <table class="task-table" style="width:100%; text-align:center;">
+      <thead>
+        <tr>
+          <th style="text-align:left;">DEPARTMENT</th>
+          <th colspan="4" style="text-align:center; border-left:1px solid var(--border); color:var(--accent);">WEEKLY PLAN</th>
+          <th colspan="4" style="text-align:center; border-left:1px solid var(--border); color:var(--accent);">MONTHLY PLAN</th>
+        </tr>
+        <tr style="background: var(--surface2);">
+          <th></th>
+          <th style="border-left:1px solid var(--border)">Total</th>
+          <th style="color:var(--done)">Done</th>
+          <th style="color:var(--wip)">WIP</th>
+          <th style="color:var(--muted)">Pending</th>
+          <th style="border-left:1px solid var(--border)">Total</th>
+          <th style="color:var(--done)">Done</th>
+          <th style="color:var(--wip)">WIP</th>
+          <th style="color:var(--muted)">Pending</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  REAL_DEPTS.forEach(dept => {
+    const w = getDeptStats(dept, 'Weekly');
+    const m = getDeptStats(dept, 'Monthly');
+    
+    // Highlight pending text in red if there are overdue tasks hiding inside it
+    let wNsHtml = w.over > 0 ? `<span style="color:var(--overdue); font-weight:bold;">${w.ns + w.over} (${w.over} Late)</span>` : (w.ns || '-');
+    let mNsHtml = m.over > 0 ? `<span style="color:var(--overdue); font-weight:bold;">${m.ns + m.over} (${m.over} Late)</span>` : (m.ns || '-');
+
+    html += `
+      <tr>
+        <td style="text-align:left; font-weight:600; color:var(--text); cursor:pointer;" onclick="setDept('${dept}')">
+          ${dept} <span style="font-size:10px; color:var(--muted); font-weight:normal;">(Click to view)</span>
+        </td>
+        <td style="border-left:1px solid var(--border); font-weight:bold;">${w.total || '-'}</td>
+        <td>${w.done || '-'}</td>
+        <td>${w.wip || '-'}</td>
+        <td>${wNsHtml}</td>
+        
+        <td style="border-left:1px solid var(--border); font-weight:bold;">${m.total || '-'}</td>
+        <td>${m.done || '-'}</td>
+        <td>${m.wip || '-'}</td>
+        <td>${mNsHtml}</td>
+      </tr>
+    `;
+  });
+
+  html += `</tbody></table></div>`;
+  document.getElementById('main-content').innerHTML = html;
+}
+
+function getDeptStats(dept, period) {
+  let stats = { total: 0, done: 0, wip: 0, ns: 0, over: 0 };
+  const data = liveData[dept]?.[period];
+  if (!data) return stats;
+
+  let tasks = [];
+  if (data.type === 'ecom') {
+    tasks = data.tasks || [];
+  } else if (data.groups && data.groups.length > 0) {
+    if ((dept === 'Marketing' || dept === 'Operations') && period === 'Weekly') {
+      tasks = data.groups[0]?.tasks || []; // Only count the current week!
+    } else {
+      data.groups.forEach(g => tasks.push(...(g.tasks || []))); // Count everything
+    }
+  }
+
+  stats.total = tasks.length;
+  tasks.forEach(t => {
+    let s = normalizeStatus(t.status);
+    if (s === 'Done') stats.done++;
+    else if (s === 'WIP') stats.wip++;
+    else if (s === 'Overdue') stats.over++;
+    else stats.ns++; 
+  });
+  
+  return stats;
+}
+
+
+  
 </script>
 </body>
 </html>
