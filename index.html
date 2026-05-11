@@ -676,15 +676,18 @@ function renderContent() {
     return;
   }
 
-  let allTasks = [];
+  // --- NEW STATS LOGIC: ONLY COUNT THE NEWEST WEEK ---
+  let statsTasks = [];
   if (data.type === 'ecom') {
-    allTasks = [...(data.tasks || [])];
-  } else {
-    (data.groups || []).forEach(g => allTasks.push(...(g.tasks || [])));
+    statsTasks = [...(data.tasks || [])];
+  } else if (data.groups && data.groups.length > 0) {
+    // Grab ONLY the tasks from the very first folder (index 0)
+    statsTasks = [...data.groups[0].tasks];
   }
 
-  updateTeamFilter(allTasks);
-  updateStats(allTasks);
+  updateTeamFilter(statsTasks);
+  updateStats(statsTasks);
+  // ---------------------------------------------------
 
   if (isEcom && data.type === 'ecom' && activeView === 'grid') {
     renderEcomGrid(data);
