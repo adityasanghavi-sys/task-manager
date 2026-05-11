@@ -764,24 +764,23 @@ function filterTasks(tasks) {
     return true;
   });
 }
-
 // ============================================================
 // TASK TABLE (WITH ACCORDION TOGGLES & DYNAMIC HEADERS)
 // ============================================================
 function renderTaskTable(groups, extraTasks) {
   
-  // 1. Set the default headers
+  // 1. Set Default Headers
   let hArea = "Area / Category";
   let hTeam = "Team / POC";
   let hTask = "Task";
   let hNotes = "Notes";
 
-  // 2. Smart Detector: Swap headers based on the active department!
+  // 2. Smart Headers (Changes based on the tab you click!)
   if (activeDept === 'R&D') {
-    hArea = "Product / Area";
+    hArea = "Item / Focus";         // Covers Products, Trials, Visits, EPI
     hTeam = "POC";
-    hTask = "Flavours / Timeline";
-    hNotes = "Remarks & Timing";
+    hTask = "Details / Timeline";   // Covers Flavours, Timelines, Problems
+    hNotes = "Updates & Remarks";   // Covers Status Text, Solutions, Launch Times
   } else if (activeDept === 'B2B') {
     hArea = "Client Name";
     hTeam = "POC";
@@ -809,9 +808,6 @@ function renderTaskTable(groups, extraTasks) {
       <th style="width:220px">${hNotes}</th>
       <th style="width:110px">Action</th>
     </tr></thead>`;
-
-  let hasRows = false;
-  const safeGroups = groups || [];
 
   let hasRows = false;
   const safeGroups = groups || [];
