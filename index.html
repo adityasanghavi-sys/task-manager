@@ -775,12 +775,12 @@ function renderTaskTable(groups, extraTasks) {
   let hTask = "Task";
   let hNotes = "Notes";
 
-  // 2. Smart Headers (Changes based on the tab you click!)
-  if (activeDept === 'R&D') {
-    hArea = "Item / Focus";         // Covers Products, Trials, Visits, EPI
+ // 2. Smart Headers (Changes based on the tab you click!)
+  if (activeDept === 'R&D' && activePeriod === 'Monthly') {  // <-- ADD THE PERIOD CHECK HERE!
+    hArea = "Item / Focus";
     hTeam = "POC";
-    hTask = "Details / Timeline";   // Covers Flavours, Timelines, Problems
-    hNotes = "Updates & Remarks";   // Covers Status Text, Solutions, Launch Times
+    hTask = "Details / Timeline";
+    hNotes = "Updates & Remarks";
   } else if (activeDept === 'B2B') {
     hArea = "Client Name";
     hTeam = "POC";
