@@ -742,7 +742,7 @@ function renderContent() {
   } else {
     renderTaskTable(data.groups || []);
   }
-}
+
 
 function updateTeamFilter(tasks) {
   const teams = [...new Set(tasks.map(t => t.team).filter(Boolean))].sort();
