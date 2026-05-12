@@ -714,31 +714,29 @@ function renderContent() {
 // --- DYNAMIC STATS LOGIC ---
     let statsTasks = [];
 
-    // For Weekly plans (like Ecommerce), ONLY count the newest week so old tasks don't pile up.
-    // For Monthly/Quarterly, count everything.
+    // For Weekly plans (like Ecommerce), ONLY count the newest week
     if (activePeriod === 'Weekly' && data && data.groups && data.groups.length > 0) {
       statsTasks = data.groups[0].tasks || [];
     } else if (data && data.groups) {
       data.groups.forEach(g => statsTasks.push(...(g.tasks || [])));
     }
 
-    // Tucked safely INSIDE the main function before it closes!
     updateTeamFilter(statsTasks);
-    updateStats(statsTasks); 
-  }
+    updateStats(statsTasks);
 
- 
-  // ---------------------------------------------------
-  // ---------------------------------------------------
+    // --- TABLE RENDERING LOGIC ---
+    if (data && data.type === 'ecom' && activeView === 'grid') {
+      renderEcomGrid(data);
+    } else if (data && data.type === 'ecom') {
+      renderTaskTable(data.groups || [], data.tasks || []);
+    } else if (data) {
+      renderTaskTable(data.groups || []);
+    }
 
-  if (data.type === 'ecom' && activeView === 'grid') {
-    renderEcomGrid(data);
-  } else if (data.type === 'ecom') {
-    renderTaskTable(data.groups || [], data.tasks || []);
-  } else {
-    renderTaskTable(data.groups || []);
-  }
+  } // <-- This closes the internal logic check
+}   // <-- This closes the main function door AT THE VERY END!
 
+// ------------------------------------------------------------
 
 function updateTeamFilter(tasks) {
   const teams = [...new Set(tasks.map(t => t.team).filter(Boolean))].sort();
