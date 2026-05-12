@@ -1252,24 +1252,31 @@ function sendDeptReminder(dept) {
       const ownerEl = document.getElementById('wa-task-meta');
       if (ownerEl) ownerEl.innerHTML = `Owner: Multiple Owners &middot; Status: Pending`;
 
-      // --- NEW: Fix the Cancel Button! ---
-      const buttons = modal.querySelectorAll('button');
-      buttons.forEach(btn => {
-        if (btn.textContent.includes('Cancel')) {
-          btn.style.cursor = 'pointer'; // Ensure it looks clickable
-          btn.onclick = function(e) {
+     // --- BULLETPROOF CANCEL BUTTON FIX ---
+      const allElements = modal.querySelectorAll('*');
+      allElements.forEach(el => {
+        // Look for anything (button, link, span) that says exactly "Cancel"
+        if (el.textContent && el.textContent.trim().toLowerCase() === 'cancel') {
+          el.style.cursor = 'pointer';
+          
+          el.onclick = function(e) {
             e.preventDefault();
+            e.stopPropagation(); // Block any other conflicting code from running
+            
+            // 1. Force the modal to hide instantly
+            modal.style.display = 'none';
+            
+            // 2. Safely try the official close function in the background just in case
             if (typeof closeModal === 'function') {
-              closeModal(); // Use your official close function
-            } else {
-              modal.style.display = 'none'; // Fallback
+               try { closeModal(); } catch(err) {} 
             }
           };
         }
       });
-    }
+  }
   }, 50);
 }
+
   
 </script>
 </body>
