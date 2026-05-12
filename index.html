@@ -643,13 +643,23 @@ function fetchData(reqDept, reqPeriod) {
     
     if (json && json.data) {
       
-      // --- STRICT CURRENT-PERIOD FILTER ---
-      // Throws away historical weeks/months so only the absolute newest one is shown and counted!
+      // --- STRICT CURRENT-PERIOD & EMPTY STATE FILTER ---
       if (json.data.groups && json.data.groups.length > 0) {
-        json.data.groups = [json.data.groups[0]];
+        // 1. Isolate the absolute newest week/month
+        let newestGroup = json.data.groups[0];
+        
+        // 2. Silently delete the fake placeholder tasks from Google Sheets
+        if (newestGroup.tasks) {
+          newestGroup.tasks = newestGroup.tasks.filter(t => 
+            t.task && !t.task.toLowerCase().includes('no tasks updated yet')
+          );
+        }
+        
+        // 3. Save only this cleaned-up week back to the dashboard's brain
+        json.data.groups = [newestGroup];
+        json.data.tasks = newestGroup.tasks; 
       }
-      // ------------------------------------
-
+      // --------------------------------------------------
       if (!liveData[fetchDept]) liveData[fetchDept] = {};
       liveData[fetchDept][fetchPeriod] = json.data;
       
