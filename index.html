@@ -714,24 +714,20 @@ function renderContent() {
 // --- DYNAMIC STATS LOGIC ---
     let statsTasks = [];
 
-    // Force ALL departments (including Ecommerce) to ONLY count the newest week in the top Stats Bar
-    if (data.groups && data.groups.length > 0) {
+    // For Weekly plans (like Ecommerce), ONLY count the newest week so old tasks don't pile up.
+    // For Monthly/Quarterly, count everything.
+    if (activePeriod === 'Weekly' && data && data.groups && data.groups.length > 0) {
       statsTasks = data.groups[0].tasks || [];
-    }
-    
-    // Marketing & Operations ONLY count the newest folder IF they are on the 'Weekly' tab
-    if ((activeDept === 'Marketing' || activeDept === 'Operations') && activePeriod === 'Weekly') {
-      statsTasks = [...(data.groups[0].tasks || [])];
-    } 
-    // If it's Quarterly, Monthly, or any other department, COUNT EVERYTHING!
-    else {
+    } else if (data && data.groups) {
       data.groups.forEach(g => statsTasks.push(...(g.tasks || [])));
     }
-    
-  }
 
-  updateTeamFilter(statsTasks);
-  updateStats(statsTasks);
+    // Tucked safely INSIDE the main function before it closes!
+    updateTeamFilter(statsTasks);
+    updateStats(statsTasks); 
+  }
+}
+ 
   // ---------------------------------------------------
   // ---------------------------------------------------
 
