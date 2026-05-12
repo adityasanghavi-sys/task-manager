@@ -610,82 +610,75 @@ function setView(v) {
 // ============================================================
 // FETCH
 // ============================================================
-function fetchData() {
-  if (activeDept === 'Summary') {
-    renderSummaryView(); // Keep the UI updated
-    
-    // The Loop Breaker: Only fetch if we aren't already fetching!
-    if (!window.isLooping) {
-      window.isLooping = true;
-      fetchAllDepts(); 
-      setTimeout(() => { window.isLooping = false; }, 3000); // Unlock after 3 seconds
+// ============================================================
+// FETCH ENGINE
+// ============================================================
+function fetchData(reqDept, reqPeriod) {
+  const fetchDept = reqDept || activeDept;
+  const fetchPeriod = reqPeriod || activePeriod;
+
+  if (fetchDept === 'Summary') {
+    renderSummaryView();
+    // Loop Breaker: Only fetch background data if this is the main automated refresh
+    if (!reqDept && !window.isFetchingAll) {
+      window.isFetchingAll = true;
+      fetchAllDepts();
+      setTimeout(() => { window.isFetchingAll = false; }, 3000);
     }
     return; 
   }
-  
-  if (APPS_SCRIPT_URL.includes('YOUR_')) return;
-  const period = activePeriod;
-  const url    = buildUrl(dept, period);
-  const callbackName = 'cb_' + dept.replace(/[^a-z0-9]/gi,'_') + '_' + period + '_' + Date.now();
 
+  if (APPS_SCRIPT_URL.includes('YOUR_')) return;
+  
+  const url = buildUrl(fetchDept, fetchPeriod);
+  const callbackName = 'cb_' + fetchDept.replace(/[^a-z0-9]/gi, '_') + '_' + fetchPeriod + '_' + Date.now();
+  
   const script = document.createElement('script');
   script.src = url + '&callback=' + callbackName;
-
+  
   window[callbackName] = function(json) {
+    // Cleanup the script tag
     delete window[callbackName];
     if (document.head.contains(script)) document.head.removeChild(script);
+    
     if (json && json.data) {
-      if (!liveData[dept]) liveData[dept] = {};
-      liveData[dept][period] = json.data;
-      if (activeDept === dept && activePeriod === period) {
+      if (!liveData[fetchDept]) liveData[fetchDept] = {};
+      liveData[fetchDept][fetchPeriod] = json.data;
+      
+      // Update the UI live if we are looking at this specific tab
+      if (activeDept === fetchDept && activePeriod === fetchPeriod) {
         renderContent();
       }
-      document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'}) + ' IST';
-    } else if (json && json.error) {
-      console.error('Apps Script error:', json.error);
+      // Live-update the Summary tab numbers in the background!
+      if (activeDept === 'Summary') {
+        renderSummaryView(); 
+      }
+      // Update the timestamp
+      const lu = document.getElementById('last-updated');
+      if (lu) lu.textContent = 'Updated ' + new Date().toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'}) + ' IST';
     }
   };
-
+  
   script.onerror = function() {
     delete window[callbackName];
     if (document.head.contains(script)) document.head.removeChild(script);
   };
-
+  
   document.head.appendChild(script);
 }
 
 function fetchAllDepts() {
   const lu = document.getElementById('last-updated');
   if (lu) lu.textContent = '⟳ Syncing...';
-  fetchData(); 
-  REAL_DEPTS.forEach(function(dept) {
-    const periods = DEPT_PERIODS[dept] || ['Weekly','Monthly'];
-    periods.forEach(function(period) {
-      if (dept === activeDept && period === activePeriod) return; 
-      if (APPS_SCRIPT_URL.includes('YOUR_')) return;
-      const d = dept, p = period;
-      const url = buildUrl(d, p);
-      const cbName = 'cb_' + d.replace(/[^a-z0-9]/gi,'_') + '_' + p + '_' + Date.now();
-      const script = document.createElement('script');
-      script.src = url + '&callback=' + cbName;
-      window[cbName] = function(json) {
-        delete window[cbName];
-        if (document.head.contains(script)) document.head.removeChild(script);
-        if (json && json.data) {
-          if (!liveData[d]) liveData[d] = {};
-          liveData[d][p] = json.data;
-          if (activeDept === d && activePeriod === p) {
-            renderContent();
-            document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'}) + ' IST';
-          }
-        }
-      };
-      script.onerror = function() { delete window[cbName]; if (document.head.contains(script)) document.head.removeChild(script); };
-      document.head.appendChild(script);
+  
+  REAL_DEPTS.forEach(d => {
+    // Fetch Weekly and Monthly for every department
+    const periods = (typeof DEPT_PERIODS !== 'undefined' && DEPT_PERIODS[d]) ? DEPT_PERIODS[d] : ['Weekly', 'Monthly'];
+    periods.forEach(p => {
+      fetchData(d, p);
     });
   });
 }
-
 // ============================================================
 // RENDER CONTENT
 // ============================================================
