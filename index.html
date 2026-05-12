@@ -1286,9 +1286,12 @@ function sendDeptReminder(dept) {
   }
   }, 50);
 }
-function remindDepartment() {
-  // 1. Get the raw text from whatever tab is currently highlighted
-  let activeTabElement = document.querySelector('.nav-item.active') || document.querySelector('.tab.active');
+ function remindDepartment() {
+  // 1. Force the code to ONLY look inside the 'dept-tabs' container for the active item
+  let activeTabElement = document.querySelector('#dept-tabs .active') || 
+                         document.querySelector('#dept-tabs .selected') || 
+                         document.querySelector('.tab.active');
+                         
   let rawTabText = activeTabElement ? activeTabElement.innerText.toUpperCase() : "";
 
   // 2. The Master List
@@ -1314,9 +1317,9 @@ function remindDepartment() {
     }
   }
 
-  // SAFETY CHECK: Stop if no department is found
+  // SAFETY CHECK: If it still fails, the alert will now tell us exactly what word it read!
   if (!targetNumber) {
-    alert("Please click on a specific department tab (like Marketing or Operations) before sending a reminder!");
+    alert(`Oops! It could not find the number. The dashboard is currently reading the word: "${rawTabText}".`);
     return; 
   }
 
@@ -1359,7 +1362,7 @@ function remindDepartment() {
   } else {
     alert("Could not find the WhatsApp popup interface.");
   }
-}  
+} 
 </script>
 </body>
 </html>
