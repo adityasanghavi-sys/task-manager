@@ -1307,7 +1307,7 @@ function remindDepartment() {
   // 3. Draft the official CEO message
   let message = `Hi ${currentDept} manager! 🚀 \n\nThis is a quick reminder from the CEO's desk to please update your team's task statuses on the Operations Dashboard for this week. If you have finished a task, please ensure it is marked as 'Complete' or 'Done'. \n\nThank you!`;
 
-  // 4. THE FIX: Grab the modal directly from the page and force it to show
+  // 4. Grab the modal directly from the page
   const modal = document.getElementById('wa-modal');
   
   if (modal) {
@@ -1323,15 +1323,24 @@ function remindDepartment() {
     // Inject the numbers into the phone input fields
     const inputBoxes = modal.querySelectorAll('input');
     if (inputBoxes.length >= 2) {
-      inputBoxes[0].value = targetNumber; // Pre-fills Owner Number
+      inputBoxes[0].value = ""; // FIX: Leaves the Owner Number blank!
       inputBoxes[1].value = targetNumber; // Pre-fills Manager Number
     }
+
+    // FIX: Find the Cancel button and force it to close the modal
+    const buttons = modal.querySelectorAll('button');
+    buttons.forEach(btn => {
+        if (btn.innerText.trim().toLowerCase() === 'cancel') {
+            btn.onclick = function() {
+                modal.style.display = 'none';
+            };
+        }
+    });
+
   } else {
-    // This will only pop up if it literally cannot find the modal on the page
     alert("Could not find the WhatsApp popup interface.");
   }
 }
-
   
 </script>
 </body>
