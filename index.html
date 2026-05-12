@@ -1210,7 +1210,50 @@ function getDeptStats(dept, period) {
   return stats;
 }
 
+// ============================================================
+// DEPARTMENT REMINDER ENGINE (MODAL VERSION)
+// ============================================================
+function sendDeptReminder(dept) {
+  const w = getDeptStats(dept, 'Weekly');
+  const m = getDeptStats(dept, 'Monthly');
+  
+  const weeklyPending = (w.ns || 0) + (w.over || 0);
+  const monthlyPending = (m.ns || 0) + (m.over || 0);
+  const totalPending = weeklyPending + monthlyPending;
 
+  if (totalPending === 0) {
+    alert(`Awesome! ${dept} has 0 pending tasks.`);
+    return;
+  }
+
+  // 1. Draft the new, direct summary message
+  const text = `Reminder that the *${dept}* department has *${totalPending} tasks pending*, pls update or complete them.`;
+
+  const modal = document.getElementById('wa-modal');
+
+  // 2. Hook into your existing modal
+  if (typeof openWAModal === 'function') {
+    openWAModal(`${dept.toUpperCase()} SUMMARY`, 'Multiple Owners', '-', 'Pending Updates');
+  } else if (modal) {
+    modal.style.display = 'flex';
+  }
+
+  // 3. Inject the clean summary text into the modal's text box
+  setTimeout(() => {
+    if (modal) {
+      // Find the message box and overwrite it
+      const textarea = modal.querySelector('textarea');
+      if (textarea) textarea.value = text;
+
+      // Overwrite the small task name text at the top of the modal
+      const titleEl = document.getElementById('wa-task-name') || document.getElementById('wa-task-title');
+      if (titleEl) titleEl.innerHTML = `<strong>${dept.toUpperCase()} SUMMARY</strong> (Total Pending: ${totalPending})`;
+      
+      const ownerEl = document.getElementById('wa-task-meta');
+      if (ownerEl) ownerEl.innerHTML = `Owner: Multiple Owners &middot; Status: Pending`;
+    }
+  }, 50);
+}
   
 </script>
 </body>
