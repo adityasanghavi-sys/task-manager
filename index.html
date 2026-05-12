@@ -1287,12 +1287,12 @@ function sendDeptReminder(dept) {
   }, 50);
 }
 function remindDepartment() {
-  // 1. Figure out which department tab is currently active
+  // 1. Get the raw text from whatever tab is currently highlighted
   let activeTabElement = document.querySelector('.nav-item.active') || document.querySelector('.tab.active');
-  let currentDept = activeTabElement ? activeTabElement.innerText.trim().toUpperCase() : "TEAM";
+  let rawTabText = activeTabElement ? activeTabElement.innerText.toUpperCase() : "";
 
-  // 2. Map the departments to their manager's exact phone numbers
-  const deptNumbers = {
+  // 2. The Master List
+  const deptData = {
     "MARKETING": "+919840089201",
     "ECOMMERCE": "+917715807071",
     "OPERATIONS": "+919137801384",
@@ -1302,36 +1302,55 @@ function remindDepartment() {
     "B2B": "+917715807071"
   };
 
-  let targetNumber = deptNumbers[currentDept] || "";
-  
-  // 3. Draft the official CEO message
+  let currentDept = "";
+  let targetNumber = "";
+
+  // 3. SMART MATCHER: Check if the tab contains our department names
+  for (let key in deptData) {
+    if (rawTabText.includes(key)) {
+      currentDept = key;
+      targetNumber = deptData[key];
+      break; // Found it! Stop looking.
+    }
+  }
+
+  // SAFETY CHECK: Stop if no department is found
+  if (!targetNumber) {
+    alert("Please click on a specific department tab (like Marketing or Operations) before sending a reminder!");
+    return; 
+  }
+
+  // 4. Draft the official CEO message
   let message = `Hi ${currentDept} manager! 🚀 \n\nThis is a quick reminder from the CEO's desk to please update your team's task statuses on the Operations Dashboard for this week. If you have finished a task, please ensure it is marked as 'Complete' or 'Done'. \n\nThank you!`;
 
-  // 4. Grab the modal directly from the page
+  // 5. Open Modal & Inject Data
   const modal = document.getElementById('wa-modal');
   
   if (modal) {
-    // Unhide the modal UI
     modal.style.display = 'flex';
     
-    // Inject the message into the text area
+    // Inject message
     const messageBox = modal.querySelector('textarea');
     if (messageBox) {
         messageBox.value = message;
     }
 
-    // Inject the numbers into the phone input fields
+    // Inject numbers into the actual values, replacing the placeholders!
     const inputBoxes = modal.querySelectorAll('input');
     if (inputBoxes.length >= 2) {
-      inputBoxes[0].value = ""; // FIX: Leaves the Owner Number blank!
-      inputBoxes[1].value = targetNumber; // Pre-fills Manager Number
+      inputBoxes[0].value = ""; // Keeps owner box blank
+      inputBoxes[1].value = targetNumber; // Injects the real Manager number!
+      
+      // Force the browser to register that data was entered
+      inputBoxes[1].dispatchEvent(new Event('input', { bubbles: true }));
     }
 
-    // FIX: Find the Cancel button and force it to close the modal
+    // Wire up the Cancel button
     const buttons = modal.querySelectorAll('button');
     buttons.forEach(btn => {
         if (btn.innerText.trim().toLowerCase() === 'cancel') {
-            btn.onclick = function() {
+            btn.onclick = function(e) {
+                e.preventDefault(); 
                 modal.style.display = 'none';
             };
         }
@@ -1340,8 +1359,7 @@ function remindDepartment() {
   } else {
     alert("Could not find the WhatsApp popup interface.");
   }
-}
-  
+}  
 </script>
 </body>
 </html>
