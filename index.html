@@ -643,22 +643,18 @@ function fetchData(reqDept, reqPeriod) {
     
     if (json && json.data) {
       
-      // --- STRICT CURRENT-PERIOD & EMPTY STATE FILTER ---
+      // --- GENTLE EMPTY STATE FILTER (KEEPS HISTORY) ---
       if (json.data.groups && json.data.groups.length > 0) {
-        // 1. Isolate the absolute newest week/month
-        let newestGroup = json.data.groups[0];
-        
-        // 2. Silently delete the fake placeholder tasks from Google Sheets
-        if (newestGroup.tasks) {
-          newestGroup.tasks = newestGroup.tasks.filter(t => 
-            t.task && !t.task.toLowerCase().includes('no tasks updated yet')
-          );
-        }
-        
-        // 3. Save only this cleaned-up week back to the dashboard's brain
-        json.data.groups = [newestGroup];
-        json.data.tasks = newestGroup.tasks; 
+        // Look through every week and just delete the fake placeholder tasks
+        json.data.groups.forEach(group => {
+          if (group.tasks) {
+            group.tasks = group.tasks.filter(t => 
+              t.task && !t.task.toLowerCase().includes('no tasks updated yet')
+            );
+          }
+        });
       }
+      // --------------------------------------------------
       // --------------------------------------------------
       if (!liveData[fetchDept]) liveData[fetchDept] = {};
       liveData[fetchDept][fetchPeriod] = json.data;
@@ -1205,34 +1201,28 @@ function renderSummaryView() {
   document.getElementById('main-content').innerHTML = html;
 }
 
-
 function getDeptStats(dept, period) {
   let stats = { total: 0, done: 0, wip: 0, ns: 0, over: 0 };
   const data = liveData[dept]?.[period];
-  if (!data) return stats;
-
-  let tasks = [];
-  if (data.type === 'ecom') {
-    tasks = data.tasks || [];
-  } else if (data.groups && data.groups.length > 0) {
-    if ((dept === 'Marketing' || dept === 'Operations') && period === 'Weekly') {
-      tasks = data.groups[0]?.tasks || []; // Only count the current week!
-    } else {
-      data.groups.forEach(g => tasks.push(...(g.tasks || []))); // Count everything
-    }
-  }
-
-  stats.total = tasks.length;
-  tasks.forEach(t => {
-    let s = normalizeStatus(t.status);
-    if (s === 'Done') stats.done++;
-    else if (s === 'WIP') stats.wip++;
-    else if (s === 'Overdue') stats.over++;
-    else stats.ns++; 
-  });
   
+  if (!data || !data.groups || data.groups.length === 0) return stats;
+
+  // ONLY calculate the math for the CURRENT week/month (groups[0])
+  const currentGroup = data.groups[0];
+  
+  if (currentGroup.tasks) {
+    currentGroup.tasks.forEach(t => {
+      stats.total++;
+      const s = (t.status || '').toLowerCase();
+      if (s.includes('done')) stats.done++;
+      else if (s.includes('wip') || s.includes('progress')) stats.wip++;
+      else if (s.includes('overdue')) stats.over++;
+      else stats.ns++; // Default to Not Started
+    });
+  }
   return stats;
 }
+  
 // ============================================================
 // DEPARTMENT REMINDER ENGINE (MODAL VERSION)
 // ============================================================
