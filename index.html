@@ -612,13 +612,18 @@ function setView(v) {
 // ============================================================
 function fetchData() {
   if (activeDept === 'Summary') {
-    fetchAllDepts(); // Silently refresh the background data instead
-    return; // Stop the function from asking Google for a "Summary" sheet
+    renderSummaryView(); // Keep the UI updated
+    
+    // The Loop Breaker: Only fetch if we aren't already fetching!
+    if (!window.isLooping) {
+      window.isLooping = true;
+      fetchAllDepts(); 
+      setTimeout(() => { window.isLooping = false; }, 3000); // Unlock after 3 seconds
+    }
+    return; 
   }
   
   if (APPS_SCRIPT_URL.includes('YOUR_')) return;
-  if (APPS_SCRIPT_URL.includes('YOUR_')) return;
-  const dept   = activeDept;
   const period = activePeriod;
   const url    = buildUrl(dept, period);
   const callbackName = 'cb_' + dept.replace(/[^a-z0-9]/gi,'_') + '_' + period + '_' + Date.now();
