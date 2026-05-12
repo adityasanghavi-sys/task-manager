@@ -712,11 +712,12 @@ function renderContent() {
     return;
   }
 // --- DYNAMIC STATS LOGIC ---
-  let statsTasks = [];
-  
-  if (data.type === 'ecom') {
-    statsTasks = [...(data.tasks || [])];
-  } else if (data.groups && data.groups.length > 0) {
+    let statsTasks = [];
+
+    // Force ALL departments (including Ecommerce) to ONLY count the newest week in the top Stats Bar
+    if (data.groups && data.groups.length > 0) {
+      statsTasks = data.groups[0].tasks || [];
+    }
     
     // Marketing & Operations ONLY count the newest folder IF they are on the 'Weekly' tab
     if ((activeDept === 'Marketing' || activeDept === 'Operations') && activePeriod === 'Weekly') {
