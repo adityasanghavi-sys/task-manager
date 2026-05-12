@@ -731,7 +731,7 @@ function renderContent() {
   // ---------------------------------------------------
   // ---------------------------------------------------
 
-  if (isEcom && data.type === 'ecom' && activeView === 'grid') {
+  if (data.type === 'ecom' && activeView === 'grid') {
     renderEcomGrid(data);
   } else if (data.type === 'ecom') {
     renderTaskTable(data.groups || [], data.tasks || []);
