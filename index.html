@@ -642,6 +642,14 @@ function fetchData(reqDept, reqPeriod) {
     if (document.head.contains(script)) document.head.removeChild(script);
     
     if (json && json.data) {
+      
+      // --- STRICT CURRENT-PERIOD FILTER ---
+      // Throws away historical weeks/months so only the absolute newest one is shown and counted!
+      if (json.data.groups && json.data.groups.length > 0) {
+        json.data.groups = [json.data.groups[0]];
+      }
+      // ------------------------------------
+
       if (!liveData[fetchDept]) liveData[fetchDept] = {};
       liveData[fetchDept][fetchPeriod] = json.data;
       
