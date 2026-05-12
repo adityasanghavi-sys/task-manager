@@ -1286,37 +1286,56 @@ function sendDeptReminder(dept) {
   }
   }, 50);
 }
-
- function remindDepartment() {
+function remindDepartment() {
   // 1. Figure out which department tab is currently active
   let activeTabElement = document.querySelector('.nav-item.active') || document.querySelector('.tab.active');
   let currentDept = activeTabElement ? activeTabElement.innerText.trim().toUpperCase() : "";
 
-  // 2. Map the departments to their manager's exact phone numbers (WhatsApp requires no '+' sign)
+  // 2. Map the departments to their manager's exact phone numbers (with the + sign for the modal)
   const deptNumbers = {
-    "MARKETING": "919840089201",
-    "ECOMMERCE": "917715807071",
-    "OPERATIONS": "919137801384",
-    "FINANCE": "918349332382",
-    "R&D": "917306141615",
-    "GT MT": "919004579848",
-    "B2B": "917715807071"
+    "MARKETING": "+919840089201",
+    "ECOMMERCE": "+917715807071",
+    "OPERATIONS": "+919137801384",
+    "FINANCE": "+918349332382",
+    "R&D": "+917306141615",
+    "GT MT": "+919004579848",
+    "B2B": "+917715807071"
   };
 
-  // 3. Find the matching number for the current tab
   let targetNumber = deptNumbers[currentDept] || "";
-
-  // 4. Draft the official message
+  
+  // 3. Draft the official CEO message
   let message = `Hi ${currentDept} manager! 🚀 \n\nThis is a quick reminder from the CEO's desk to please update your team's task statuses on the Operations Dashboard for this week. If you have finished a task, please ensure it is marked as 'Complete' or 'Done'. \n\nThank you!`;
 
-  // 5. Open WhatsApp Web/App opening a direct chat with that specific manager
-  // If no number matches (like on the Summary tab), it falls back to a general share screen
-  let whatsappUrl = targetNumber 
-    ? `https://wa.me/${targetNumber}?text=${encodeURIComponent(message)}` 
-    : `https://wa.me/?text=${encodeURIComponent(message)}`;
-  
-  window.open(whatsappUrl, '_blank');
-} 
+  // 4. Trigger your existing WhatsApp Modal
+  if (typeof openWAModal === 'function') {
+    
+    // Open the modal with a custom title for the department
+    openWAModal(`Weekly Status Update - ${currentDept}`, 'Department Manager', '-', 'Pending Update');
+
+    // Wait a tiny fraction of a second for the modal to appear, then inject our custom text and numbers!
+    setTimeout(() => {
+      const modal = document.getElementById('wa-modal');
+      if (modal) {
+        // Pre-fill the message box
+        const messageBox = modal.querySelector('textarea');
+        if (messageBox) messageBox.value = message;
+
+        // Pre-fill the Owner and Manager phone number boxes
+        const inputBoxes = modal.querySelectorAll('input');
+        if (inputBoxes.length >= 2) {
+          inputBoxes[0].value = targetNumber; 
+          inputBoxes[1].value = targetNumber; 
+        }
+      }
+    }, 50);
+
+  } else {
+    // Failsafe: If the modal is broken, it will just open WhatsApp Web normally
+    window.open(`https://wa.me/${targetNumber.replace('+', '')}?text=${encodeURIComponent(message)}`, '_blank');
+  }
+}
+
 
   
 </script>
