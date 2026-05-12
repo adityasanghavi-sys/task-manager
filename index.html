@@ -611,6 +611,12 @@ function setView(v) {
 // FETCH
 // ============================================================
 function fetchData() {
+  if (activeDept === 'Summary') {
+    fetchAllDepts(); // Silently refresh the background data instead
+    return; // Stop the function from asking Google for a "Summary" sheet
+  }
+  
+  if (APPS_SCRIPT_URL.includes('YOUR_')) return;
   if (APPS_SCRIPT_URL.includes('YOUR_')) return;
   const dept   = activeDept;
   const period = activePeriod;
