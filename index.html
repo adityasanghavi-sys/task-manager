@@ -815,9 +815,9 @@ function renderTaskTable(groups, extraTasks) {
   if (activeDept === 'B2B') {
     globalArea = "Client Name"; globalTeam = "POC"; globalTask = "Actionable"; globalNotes = "Industry & Notes";
   } else if (activeDept === 'Operations') {
-    globalArea = "Client / PO"; globalTeam = "POC"; globalTask = "Actionable"; globalNotes = "Due Date & Notes";
+    globalArea = "Client / PO"; globalTeam = "POC"; globalTask = "Actionable"; globalNotes = "Notes";
   } else if (activeDept === 'Finance') {
-    globalArea = "Category"; globalTeam = "Concerned"; globalTask = "Task"; globalNotes = "Remarks & Deadline";
+    globalArea = "Category"; globalTeam = "Concerned"; globalTask = "Task"; globalNotes = "Remarks";
   } else if (activeDept === 'GT MT') {
     globalArea = "Category"; 
     globalTeam = "Concerned"; 
@@ -837,6 +837,7 @@ function renderTaskTable(groups, extraTasks) {
       <th style="width:160px">${globalTeam}</th>
       <th>${globalTask}</th>
       <th style="width:130px">Status</th>
+      <th style="width:120px">Due Date</th>
       <th style="width:220px">${globalNotes}</th>
       <th style="width:110px">Action</th>
     </tr></thead>`;
@@ -856,7 +857,7 @@ function renderTaskTable(groups, extraTasks) {
 
     html += `<tbody>
       <tr class="week-header" onclick="toggleGroup('g_${groupIndex}')" style="cursor:pointer;" title="Click to expand/collapse">
-        <td colspan="6">
+        <td colspan="7">
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <span>📅 ${g.week}</span>
             <span id="icon-g_${groupIndex}" style="font-size:16px; font-weight:bold;">${icon}</span>
@@ -975,6 +976,13 @@ function taskRow(t, id) {
   const isOverdue = s === 'Overdue';
   const rowStyle = isOverdue ? 'background:rgba(250,109,138,0.04);' : '';
   const areas = (t.area || '').split(',').map(a => `<span class="area-tag">${a.trim()}</span>`).join('');
+  
+  // This cleans the "Due: X" text out of the notes if your Apps Script accidentally combined them
+  let displayNotes = t.notes || '';
+  if (displayNotes.toLowerCase().includes('due:')) {
+     displayNotes = displayNotes.replace(/Due:.*?(;|\n|<br>)/i, '').trim();
+  }
+
   return `<tr style="${rowStyle}">
     <td>${areas || '—'}</td>
     <td><span style="font-size:11px;color:var(--muted)">${t.team || '—'}</span></td>
@@ -984,7 +992,8 @@ function taskRow(t, id) {
         <span class="badge-dot"></span>${s}
       </button>
     </td>
-    <td><span class="notes-text">${t.notes || ''}</span></td>
+    <td><span style="font-size:11px;font-weight:600;color:var(--accent)">${t.due || '—'}</span></td>
+    <td><span class="notes-text">${displayNotes}</span></td>
     <td>
       <button class="wa-btn" onclick="openWaModal(${JSON.stringify({...t}).replace(/"/g,'&quot;')})">
         📱 Remind
@@ -992,7 +1001,6 @@ function taskRow(t, id) {
     </td>
   </tr>`;
 }
-
 // ============================================================
 // ECOMMERCE GRID
 // ============================================================
