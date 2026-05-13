@@ -833,7 +833,7 @@ function renderTaskTable(groups, extraTasks) {
   // 2. Only print the global header at the top if it is NOT R&D Monthly
   if (!isRDMonthly) {
     if (activeDept === 'Finance') {
-      // NEW CUSTOM ORDER FOR FINANCE
+      // CUSTOM ORDER FOR FINANCE
       html += `<thead><tr>
         <th>Task</th>
         <th style="width:150px">Concerned</th>
@@ -842,6 +842,15 @@ function renderTaskTable(groups, extraTasks) {
         <th style="width:110px">Due Date</th>
         <th style="width:130px">Status</th>
         <th style="width:100px">Action</th>
+      </tr></thead>`;
+    } else if (activeDept === 'B2B') {
+      // NEW CUSTOM ORDER FOR B2B
+      html += `<thead><tr>
+        <th style="width:200px">Client Name</th>
+        <th>Actionable</th>
+        <th style="width:130px">Status</th>
+        <th style="width:300px">Notes</th>
+        <th style="width:110px">Action</th>
       </tr></thead>`;
     } else {
       // STANDARD ORDER FOR ALL OTHER TABS
@@ -982,73 +991,41 @@ function toggleGroup(id) {
     icon.textContent = '+';
   }
 }
-function taskRow(t, id) {
-  const s = normalizeStatus(t.status);
-  const knownStatuses = ['Done', 'WIP', 'Overdue', 'Not Started'];
-  const badgeClass = knownStatuses.includes(s) ? s.replace(' ', '-') : 'WIP';
-  const isOverdue = s === 'Overdue';
-  const rowStyle = isOverdue ? 'background:rgba(250,109,138,0.04);' : '';
-  const areas = (t.area || '').split(',').map(a => `<span class="area-tag">${a.trim()}</span>`).join('');
-  
-  // Cleans the "Due: X" text out of the notes
-  let displayNotes = t.notes || '';
-  if (displayNotes.toLowerCase().includes('due:')) {
-     displayNotes = displayNotes.replace(/Due:.*?(;|\n|<br>)/i, '').trim();
-  }
-
-  // --- THE SMART DATE HUNTER FIX ---
-  // Checks for alternative variable names, then scans the row data for anything formatted like a date!
-  let displayDue = t.due || t.deadline || t.dueDate || '';
-  if (!displayDue || displayDue === '—') {
-    for (let key in t) {
-      if (typeof t[key] === 'string' && t[key].match(/\d{1,2}\/\d{1,2}\/\d{2,4}/)) {
-        displayDue = t[key].match(/\d{1,2}\/\d{1,2}\/\d{2,4}/)[0];
-        break;
-      }
+// 2. Only print the global header at the top if it is NOT R&D Monthly
+  if (!isRDMonthly) {
+    if (activeDept === 'Finance') {
+      // CUSTOM ORDER FOR FINANCE
+      html += `<thead><tr>
+        <th>Task</th>
+        <th style="width:150px">Concerned</th>
+        <th style="width:150px">Department</th>
+        <th style="width:250px">Remarks</th>
+        <th style="width:110px">Due Date</th>
+        <th style="width:130px">Status</th>
+        <th style="width:100px">Action</th>
+      </tr></thead>`;
+    } else if (activeDept === 'B2B') {
+      // NEW CUSTOM ORDER FOR B2B
+      html += `<thead><tr>
+        <th style="width:200px">Client Name</th>
+        <th>Actionable</th>
+        <th style="width:130px">Status</th>
+        <th style="width:300px">Notes</th>
+        <th style="width:110px">Action</th>
+      </tr></thead>`;
+    } else {
+      // STANDARD ORDER FOR ALL OTHER TABS
+      html += `<thead><tr>
+        <th style="width:180px">${globalArea}</th>
+        <th style="width:160px">${globalTeam}</th>
+        <th>${globalTask}</th>
+        <th style="width:130px">Status</th>
+        <th style="width:120px">Due Date</th>
+        <th style="width:220px">${globalNotes}</th>
+        <th style="width:110px">Action</th>
+      </tr></thead>`;
     }
   }
-  displayDue = displayDue || '—';
-
-  // --- NEW: REORDERED COLUMNS JUST FOR FINANCE ---
-  if (activeDept === 'Finance') {
-    return `<tr style="${rowStyle}">
-      <td style="font-size:13px;font-weight:500">${t.task || '—'}</td>
-      <td><span style="font-size:11px;color:var(--muted)">${t.team || '—'}</span></td>
-      <td>${areas || '—'}</td>
-      <td><span class="notes-text">${displayNotes}</span></td>
-      <td><span style="font-size:11px;font-weight:600;color:var(--accent)">${displayDue}</span></td>
-      <td>
-        <button class="badge ${badgeClass}" onclick="openStatusModal(${JSON.stringify({...t}).replace(/"/g,'&quot;')})">
-          <span class="badge-dot"></span>${s}
-        </button>
-      </td>
-      <td>
-        <button class="wa-btn" onclick="openWaModal(${JSON.stringify({...t}).replace(/"/g,'&quot;')})">
-          📱 Remind
-        </button>
-      </td>
-    </tr>`;
-  } 
-  
-  // --- STANDARD ORDER FOR ALL OTHER TABS ---
-  return `<tr style="${rowStyle}">
-    <td>${areas || '—'}</td>
-    <td><span style="font-size:11px;color:var(--muted)">${t.team || '—'}</span></td>
-    <td style="font-size:13px;font-weight:500">${t.task || '—'}</td>
-    <td>
-      <button class="badge ${badgeClass}" onclick="openStatusModal(${JSON.stringify({...t}).replace(/"/g,'&quot;')})">
-        <span class="badge-dot"></span>${s}
-      </button>
-    </td>
-    <td><span style="font-size:11px;font-weight:600;color:var(--accent)">${displayDue}</span></td>
-    <td><span class="notes-text">${displayNotes}</span></td>
-    <td>
-      <button class="wa-btn" onclick="openWaModal(${JSON.stringify({...t}).replace(/"/g,'&quot;')})">
-        📱 Remind
-      </button>
-    </td>
-  </tr>`;
-}
 // ============================================================
 // ECOMMERCE GRID
 // ============================================================
