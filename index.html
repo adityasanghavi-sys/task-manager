@@ -852,6 +852,16 @@ function renderTaskTable(groups, extraTasks) {
         <th style="width:300px">Notes</th>
         <th style="width:110px">Action</th>
       </tr></thead>`;
+    } else if (activeDept === 'FO') {
+      // NEW CUSTOM ORDER FOR FO
+      html += `<thead><tr>
+        <th style="width:250px">Task</th>
+        <th style="width:150px">POC</th>
+        <th style="width:130px">Status</th>
+        <th style="width:120px">Timeline</th>
+        <th style="width:220px">Notes</th>
+        <th style="width:110px">Action</th>
+      </tr></thead>`;
     } else {
       // STANDARD ORDER FOR ALL OTHER TABS
       html += `<thead><tr>
@@ -987,7 +997,7 @@ function taskRow(t, id) {
      displayNotes = displayNotes.replace(/Due:.*?(;|\n|<br>)/i, '').trim();
   }
 
-  // --- NEW: B2B STATUS EXTRACTOR ---
+  // --- B2B STATUS EXTRACTOR ---
   if (activeDept === 'B2B') {
       const lowerNotes = displayNotes.toLowerCase();
       if (lowerNotes.includes('industry: wip')) {
@@ -1000,6 +1010,19 @@ function taskRow(t, id) {
           s = 'Not Started';
           displayNotes = displayNotes.replace(/Industry:\s*(Pending|Not Started)\s*-?\s*/i, '').trim();
       }
+  }
+
+  // --- NEW: FO STATUS EXTRACTOR ---
+  if (activeDept === 'FO') {
+      const lowerNotes = displayNotes.toLowerCase();
+      if (lowerNotes.includes('completed') || lowerNotes.includes('done')) {
+          s = 'Done';
+      } else if (lowerNotes.includes('in progress') || lowerNotes.includes('wip') || lowerNotes.includes('recurring')) {
+          s = 'WIP';
+      } else {
+          s = 'Not Started';
+      }
+      displayNotes = ''; // Clears the notes field since it only contained the broken status
   }
 
   s = normalizeStatus(s);
@@ -1060,6 +1083,26 @@ function taskRow(t, id) {
     </tr>`;
   }
 
+  // --- NEW: REORDERED COLUMNS FOR FO ---
+  if (activeDept === 'FO') {
+    return `<tr style="${rowStyle}">
+      <td><span style="font-weight:600;">${areas || '—'}</span></td>
+      <td style="font-size:13px;font-weight:500">${t.task || '—'}</td>
+      <td>
+        <button class="badge ${badgeClass}" onclick="openStatusModal(${JSON.stringify({...t}).replace(/"/g,'&quot;')})">
+          <span class="badge-dot"></span>${s}
+        </button>
+      </td>
+      <td><span style="font-size:11px;font-weight:600;color:var(--accent)">${displayDue}</span></td>
+      <td><span class="notes-text">${displayNotes}</span></td>
+      <td>
+        <button class="wa-btn" onclick="openWaModal(${JSON.stringify({...t}).replace(/"/g,'&quot;')})">
+          📱 Remind
+        </button>
+      </td>
+    </tr>`;
+  }
+
   // --- STANDARD ORDER FOR ALL OTHER TABS ---
   return `<tr style="${rowStyle}">
     <td>${areas || '—'}</td>
@@ -1079,7 +1122,6 @@ function taskRow(t, id) {
     </td>
   </tr>`;
 }
-
 // ============================================================
 // ACCORDION TOGGLE FUNCTION
 // ============================================================
