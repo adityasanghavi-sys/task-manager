@@ -846,11 +846,14 @@ function renderTaskTable(groups, extraTasks) {
     } else if (activeDept === 'B2B') {
       // NEW CUSTOM ORDER FOR B2B
       html += `<thead><tr>
-        <th style="width:200px">Client Name</th>
+        <th style="width:160px">Client Name</th>
         <th>Actionable</th>
-        <th style="width:130px">Status</th>
-        <th style="width:300px">Notes</th>
-        <th style="width:110px">Action</th>
+        <th style="width:110px">Cost Sheet</th>
+        <th style="width:110px">Sample Sheet</th>
+        <th style="width:110px">Meeting Set</th>
+        <th style="width:110px">Status</th>
+        <th style="width:200px">Notes</th>
+        <th style="width:100px">Action</th>
       </tr></thead>`;
     } else if (activeDept === 'FO') {
       // NEW CUSTOM ORDER FOR FO
@@ -1066,9 +1069,15 @@ function taskRow(t, id) {
   
   // --- REORDERED COLUMNS FOR B2B ---
   if (activeDept === 'B2B') {
+    const checkIcon = (val) => val && val.toLowerCase() !== 'no' && val !== '—' && val !== ''
+      ? `<span style="color:var(--done);font-weight:600;">✓ ${val}</span>`
+      : `<span style="color:var(--muted);">—</span>`;
     return `<tr style="${rowStyle}">
       <td><span style="font-weight:600;">${areas || '—'}</span></td>
       <td style="font-size:13px;font-weight:500">${t.task || '—'}</td>
+      <td style="text-align:center">${checkIcon(t.costSheet)}</td>
+      <td style="text-align:center">${checkIcon(t.sampleSheet)}</td>
+      <td style="text-align:center">${checkIcon(t.meetingSet)}</td>
       <td>
         <button class="badge ${badgeClass}" onclick="openStatusModal(${JSON.stringify({...t}).replace(/"/g,'&quot;')})">
           <span class="badge-dot"></span>${s}
