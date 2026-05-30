@@ -1015,17 +1015,9 @@ function taskRow(t, id) {
       }
   }
 
-  // --- NEW: FO STATUS EXTRACTOR ---
+  // --- FO STATUS: use parsed status directly, notes are clean now ---
   if (activeDept === 'FO') {
-      const lowerNotes = displayNotes.toLowerCase();
-      if (lowerNotes.includes('completed') || lowerNotes.includes('done')) {
-          s = 'Done';
-      } else if (lowerNotes.includes('in progress') || lowerNotes.includes('wip') || lowerNotes.includes('recurring')) {
-          s = 'WIP';
-      } else {
-          s = 'Not Started';
-      }
-      displayNotes = ''; // Clears the notes field since it only contained the broken status
+      // No override needed — parser handles status correctly
   }
 
   s = normalizeStatus(s);
