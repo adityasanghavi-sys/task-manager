@@ -1366,17 +1366,16 @@ function getDeptStats(dept, period) {
   if (!data || !data.groups || data.groups.length === 0) return stats;
 
   // ONLY calculate the math for the CURRENT week/month (groups[0])
-  const currentGroup = data.groups[0];
+  const allTasks = [];
+  data.groups.forEach(function(g) { (g.tasks || []).forEach(function(t) { allTasks.push(t); }); });
   
-  if (currentGroup.tasks) {
-    currentGroup.tasks.forEach(t => {
+  allTasks.forEach(t => {
       stats.total++;
-      const s = (t.status || '').toLowerCase();
-      if (s.includes('done')) stats.done++;
-      else if (s.includes('wip') || s.includes('progress')) stats.wip++;
-      else if (s.includes('overdue')) stats.over++;
-      else stats.ns++; // Default to Not Started
-    });
+      const s = normalizeStatus(t.status);
+      if (s === 'Done') stats.done++;
+      else if (s === 'WIP') stats.wip++;
+      else if (s === 'Overdue') stats.over++;
+      else stats.ns++;    });
   }
   return stats;
 }
