@@ -891,18 +891,25 @@ function renderTaskTable(groups, extraTasks) {
     const displayStyle = isOpen ? '' : 'display:none;';
     const icon = isOpen ? '−' : '+';
 
+    // Stale detection: if _isStale flag set by Apps Script, warn the founder
+    let weekLabel = g.week;
+    let weekHeaderStyle = '';
+    if (g.week === 'Live Data' && g._isStale) {
+      weekLabel = '⚠️ Previous week\'s data — sheet not yet updated this week';
+      weekHeaderStyle = 'color: var(--overdue) !important;';
+    }
+
     html += `<tbody>
       <tr class="week-header" onclick="toggleGroup('g_${groupIndex}')" style="cursor:pointer;" title="Click to expand/collapse">
-        <td colspan="7">
+        <td colspan="7" style="${weekHeaderStyle}">
           <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span>📅 ${g.week}</span>
+            <span>📅 ${weekLabel}</span>
             <span id="icon-g_${groupIndex}" style="font-size:16px; font-weight:bold;">${icon}</span>
           </div>
         </td>
       </tr>
     </tbody>
     <tbody id="tasks-g_${groupIndex}" style="${displayStyle}">`;
-
     // 3. INJECT SPECIFIC HEADERS INSIDE EACH FOLDER FOR R&D MONTHLY!
     if (isRDMonthly) {
        let catArea = "PRODUCT"; 
