@@ -1085,10 +1085,11 @@ function taskRow(t, id) {
   }
 
   // --- NEW: REORDERED COLUMNS FOR FO ---
+  // REPLACE WITH:
   if (activeDept === 'FO') {
     return `<tr style="${rowStyle}">
-      <td><span style="font-weight:600;">${areas || '—'}</span></td>
       <td style="font-size:13px;font-weight:500">${t.task || '—'}</td>
+      <td><span style="font-size:11px;color:var(--muted)">${t.team || '—'}</span></td>
       <td>
         <button class="badge ${badgeClass}" onclick="openStatusModal(${JSON.stringify({...t}).replace(/"/g,'&quot;')})">
           <span class="badge-dot"></span>${s}
