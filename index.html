@@ -385,6 +385,7 @@
 
 <div class="controls">
   <div class="period-selector" id="period-selector">
+    <button class="period-btn" onclick="setPeriod('Daily')" id="pbtn-Daily">Daily</button>
     <button class="period-btn active" onclick="setPeriod('Weekly')" id="pbtn-Weekly">Weekly</button>
     <button class="period-btn" onclick="setPeriod('Monthly')" id="pbtn-Monthly">Monthly</button>
     <button class="period-btn" onclick="setPeriod('Quarterly')" id="pbtn-Quarterly">Quarterly</button>
@@ -562,7 +563,7 @@ function renderDeptTabs() {
 const DEPT_PERIODS = {
   Marketing:  ['Weekly', 'Monthly'],
   Ecommerce:  ['Weekly', 'Monthly'],
-  Finance:    ['Weekly', 'Monthly'],
+  Finance:    ['Daily', 'Weekly', 'Monthly'],
   'R&D':      ['Weekly', 'Monthly'],
   'GT MT':    ['Weekly', 'Monthly'],
   Operations: ['Weekly', 'Monthly'],
@@ -591,7 +592,7 @@ function setDept(dept) {
   const periods = DEPT_PERIODS[dept] || ['Weekly','Monthly','Quarterly'];
   if (!periods.includes(activePeriod)) activePeriod = periods[0];
   
-  ['Weekly','Monthly','Quarterly'].forEach(p => {
+  ['Daily','Weekly','Monthly','Quarterly'].forEach(p => {
     const btn = document.getElementById('pbtn-' + p);
     if (btn) btn.style.display = periods.includes(p) ? '' : 'none';
   });
