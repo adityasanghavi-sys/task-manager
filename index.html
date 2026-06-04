@@ -1116,7 +1116,7 @@ function taskRow(t, id) {
   return `<tr style="${rowStyle}">
     <td>${areas || '—'}</td>
     <td><span style="font-size:11px;color:var(--muted)">${t.team || '—'}</span></td>
-    <td style="font-size:13px;font-weight:500">${t.task || '—'}</td>
+    <td style="font-size:13px;font-weight:500">${t.task || '—'}${t.carriedOver ? ' <span style="display:inline-block;padding:1px 7px;border-radius:10px;font-size:9px;font-weight:600;letter-spacing:0.5px;background:rgba(250,204,109,0.15);color:#facc6d;border:1px solid rgba(250,204,109,0.3);vertical-align:middle;margin-left:6px;">↩ CARRIED</span>' : ''}</td>
     <td>
       <button class="badge ${badgeClass}" onclick="openStatusModal(${JSON.stringify({...t}).replace(/"/g,'&quot;')})">
         <span class="badge-dot"></span>${s}
