@@ -568,7 +568,7 @@ const DEPT_PERIODS = {
   'GT MT':    ['Weekly', 'Monthly'],
   Operations: ['Weekly', 'Monthly'],
   FO:         ['Weekly'],
-  B2B:        ['Weekly', 'Monthly'],
+  B2B:        ['Daily', 'Weekly', 'Monthly'],
 };
 
 function setDept(dept) {
@@ -844,8 +844,18 @@ function renderTaskTable(groups, extraTasks) {
         <th style="width:130px">Status</th>
         <th style="width:100px">Action</th>
       </tr></thead>`;
-    } else if (activeDept === 'B2B') {
-      // NEW CUSTOM ORDER FOR B2B
+    } else if (activeDept === 'B2B' && activePeriod === 'Daily') {
+      // CUSTOM ORDER FOR B2B DAILY
+      html += `<thead><tr>
+        <th style="width:250px">Task</th>
+        <th style="width:150px">POC</th>
+        <th style="width:120px">Timeline</th>
+        <th style="width:130px">Status</th>
+        <th style="width:250px">Notes</th>
+        <th style="width:110px">Action</th>
+      </tr></thead>`;
+    } else if (activeDept === 'B2B' && activePeriod !== 'Daily') {
+      // CUSTOM ORDER FOR B2B WEEKLY/MONTHLY
       html += `<thead><tr>
         <th style="width:160px">Client Name</th>
         <th>Actionable</th>
@@ -1066,9 +1076,28 @@ function taskRow(t, id) {
       </td>
     </tr>`;
   } 
+  // --- REORDERED COLUMNS FOR B2B DAILY ---
+  if (activeDept === 'B2B' && activePeriod === 'Daily') {
+    return `<tr style="${rowStyle}">
+      <td style="font-size:13px;font-weight:500">${t.task || '—'}</td>
+      <td><span style="font-size:11px;color:var(--muted)">${t.team || '—'}</span></td>
+      <td><span style="font-size:11px;font-weight:600;color:var(--accent)">${displayDue}</span></td>
+      <td>
+        <button class="badge ${badgeClass}" onclick="openStatusModal(${JSON.stringify({...t}).replace(/"/g,'&quot;')})">
+          <span class="badge-dot"></span>${s}
+        </button>
+      </td>
+      <td><span class="notes-text">${displayNotes}</span></td>
+      <td>
+        <button class="wa-btn" onclick="openWaModal(${JSON.stringify({...t}).replace(/"/g,'&quot;')})">
+          📱 Remind
+        </button>
+      </td>
+    </tr>`;
+  }
   
-  // --- REORDERED COLUMNS FOR B2B ---
-  if (activeDept === 'B2B') {
+  // --- REORDERED COLUMNS FOR B2B WEEKLY/MONTHLY ---
+  if (activeDept === 'B2B' && activePeriod !== 'Daily') {
     const checkIcon = (val) => val && val.toLowerCase() !== 'no' && val !== '—' && val !== ''
       ? `<span style="color:var(--done);font-weight:600;">✓ ${val}</span>`
       : `<span style="color:var(--muted);">—</span>`;
@@ -1091,6 +1120,7 @@ function taskRow(t, id) {
       </td>
     </tr>`;
   }
+  
 
   // --- NEW: REORDERED COLUMNS FOR FO ---
   // REPLACE WITH:
