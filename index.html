@@ -878,8 +878,7 @@ function renderTaskTable(groups, extraTasks) {
         <th style="width:220px">Notes</th>
         <th style="width:110px">Action</th>
       </tr></thead>`;
-    } else {
-      } else if (activeDept === 'Ecommerce' && activePeriod === 'Weekly') {
+    } else if (activeDept === 'Ecommerce' && activePeriod === 'Weekly') {
       // CUSTOM ORDER FOR ECOMMERCE
       html += `<thead><tr>
         <th style="width:160px">Portal</th>
@@ -887,7 +886,9 @@ function renderTaskTable(groups, extraTasks) {
         <th style="width:120px">Date</th>
         <th style="width:130px">Status</th>
         <th style="width:110px">Action</th>
-      </tr></thead>`;// STANDARD ORDER FOR ALL OTHER TABS
+      </tr></thead>`;
+    } else {
+      // STANDARD ORDER FOR ALL OTHER TABS
       html += `<thead><tr>
         <th style="width:180px">${globalArea}</th>
         <th style="width:160px">${globalTeam}</th>
