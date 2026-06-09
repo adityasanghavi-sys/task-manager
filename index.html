@@ -879,7 +879,15 @@ function renderTaskTable(groups, extraTasks) {
         <th style="width:110px">Action</th>
       </tr></thead>`;
     } else {
-      // STANDARD ORDER FOR ALL OTHER TABS
+      } else if (activeDept === 'Ecommerce' && activePeriod === 'Weekly') {
+      // CUSTOM ORDER FOR ECOMMERCE
+      html += `<thead><tr>
+        <th style="width:160px">Portal</th>
+        <th>Task</th>
+        <th style="width:120px">Date</th>
+        <th style="width:130px">Status</th>
+        <th style="width:110px">Action</th>
+      </tr></thead>`;// STANDARD ORDER FOR ALL OTHER TABS
       html += `<thead><tr>
         <th style="width:180px">${globalArea}</th>
         <th style="width:160px">${globalTeam}</th>
@@ -1150,7 +1158,24 @@ function taskRow(t, id) {
       </td>
     </tr>`;
   }
-
+ // --- REORDERED COLUMNS FOR ECOMMERCE ---
+  if (activeDept === 'Ecommerce' && activePeriod === 'Weekly') {
+    return `<tr style="${rowStyle}">
+      <td><span style="font-weight:600;">${areas || '—'}</span></td>
+      <td style="font-size:13px;font-weight:500">${t.task || '—'}</td>
+      <td><span style="font-size:11px;font-weight:600;color:var(--accent)">${displayDue}</span></td>
+      <td>
+        <button class="badge ${badgeClass}" onclick="openStatusModal(${JSON.stringify({...t}).replace(/"/g,'&quot;')})">
+          <span class="badge-dot"></span>${s}
+        </button>
+      </td>
+      <td>
+        <button class="wa-btn" onclick="openWaModal(${JSON.stringify({...t}).replace(/"/g,'&quot;')})">
+          📱 Remind
+        </button>
+      </td>
+    </tr>`;
+  }
   // --- STANDARD ORDER FOR ALL OTHER TABS ---
   return `<tr style="${rowStyle}">
     <td>${areas || '—'}</td>
