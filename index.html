@@ -722,8 +722,11 @@ function renderContent() {
 // --- DYNAMIC STATS LOGIC ---
     let statsTasks = [];
 
-    // For Weekly plans (like Ecommerce), ONLY count the newest week
     if (activePeriod === 'Weekly' && data && data.groups && data.groups.length > 0) {
+      // Use the Smart Calendar to filter out old/future weeks from the top numbers
+      let currentGroups = data.groups.filter(g => isCurrentWeek(g.week));
+      currentGroups.forEach(g => statsTasks.push(...(g.tasks || [])));
+    } else if (activePeriod === 'Daily' && data && data.groups && data.groups.length > 0) {
       statsTasks = data.groups[0].tasks || [];
     } else if (data && data.groups) {
       data.groups.forEach(g => statsTasks.push(...(g.tasks || [])));
@@ -731,7 +734,6 @@ function renderContent() {
 
     updateTeamFilter(statsTasks);
     updateStats(statsTasks);
-
     // --- TABLE RENDERING LOGIC ---
     if (data && data.type === 'ecom' && activeView === 'grid') {
       renderEcomGrid(data);
@@ -893,15 +895,21 @@ function renderTaskTable(groups, extraTasks) {
   let hasRows = false;
   const safeGroups = groups || [];
 
+  // Figure out which group should be open by default
+  let defaultOpenIndex = 0;
+  if (activePeriod === 'Weekly') {
+      const currIdx = safeGroups.findIndex(g => isCurrentWeek(g.week));
+      if (currIdx !== -1) defaultOpenIndex = currIdx;
+  }
+
   safeGroups.forEach((g, groupIndex) => {
     const filtered = filterTasks(g.tasks || []);
     if (filtered.length === 0) return;
     hasRows = true;
 
-    const isOpen = groupIndex === 0;
+    const isOpen = (groupIndex === defaultOpenIndex);
     const displayStyle = isOpen ? '' : 'display:none;';
     const icon = isOpen ? '−' : '+';
-
     // Stale detection: if _isStale flag set by Apps Script, warn the founder
     let weekLabel = g.week;
     let weekHeaderStyle = '';
@@ -1389,15 +1397,75 @@ function renderSummaryView() {
   html += `</tbody></table></div>`;
   document.getElementById('main-content').innerHTML = html;
 }
+// ============================================================
+// SMART CALENDAR DETECTOR
+// ============================================================
+function isCurrentWeek(weekStr) {
+  if (!weekStr) return true; // Generic fallback
+  let s = weekStr.toLowerCase();
+  
+  if (s.includes('live data') || s.includes('current')) return true;
 
+  const now = new Date();
+  const curMonth = now.getMonth(); // 0-indexed
+  const months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+  const currentMonthName = months[curMonth];
+
+  let mentionsPastMonth = false;
+  let mentionsFutureMonth = false;
+
+  for (let i = 0; i < 12; i++) {
+      if (s.includes(months[i])) {
+          if (i < curMonth) mentionsPastMonth = true;
+          if (i > curMonth) mentionsFutureMonth = true;
+      }
+  }
+
+  // If it mentions an old/future month and NOT the current one, block it immediately
+  if (mentionsPastMonth && !s.includes(currentMonthName)) return false;
+  if (mentionsFutureMonth && !s.includes(currentMonthName)) return false;
+
+  // Generate the actual day numbers for the current calendar week (Monday-Sunday)
+  const day = now.getDay();
+  const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+  let weekDays = [];
+  for (let i = 0; i < 7; i++) {
+      let d = new Date(now.getFullYear(), now.getMonth(), diff + i);
+      weekDays.push(d.getDate().toString());
+  }
+
+  let nums = s.match(/\d+/g) || [];
+
+  if (nums.length > 0) {
+      // Ignore 4-digit years (e.g., 2026)
+      nums = nums.filter(n => n.length < 4);
+      if (nums.length > 0) {
+          // If the folder has numbers, check if ANY of them match the current week
+          return nums.some(n => weekDays.includes(n));
+      }
+  }
+
+  // If the folder has no dates at all (e.g., "B2B Tasks"), assume it is an active generic folder
+  return true;
+}
 function getDeptStats(dept, period) {
   let stats = { total: 0, done: 0, wip: 0, ns: 0, over: 0 };
   const data = liveData[dept]?.[period];
   
   if (!data || !data.groups || data.groups.length === 0) return stats;
 
-  // STRICTLY grab only the first folder (Current Week / Live Data)
-  const currentGroupTasks = data.groups[0].tasks || [];
+  let currentGroupTasks = [];
+
+  if (period === 'Weekly') {
+      // STRICTLY grab only folders that match the current calendar week!
+      let currentGroups = data.groups.filter(g => isCurrentWeek(g.week));
+      currentGroups.forEach(g => currentGroupTasks.push(...(g.tasks || [])));
+  } else if (period === 'Daily') {
+      currentGroupTasks = data.groups[0].tasks || [];
+  } else {
+      // For Monthly/Quarterly, sum all active folders
+      data.groups.forEach(g => currentGroupTasks.push(...(g.tasks || [])));
+  }
   
   currentGroupTasks.forEach(t => {
       stats.total++;
@@ -1409,7 +1477,7 @@ function getDeptStats(dept, period) {
   });
   
   return stats;
-}  
+}
 // ============================================================
 // DEPARTMENT REMINDER ENGINE (MODAL VERSION)
 // ============================================================
