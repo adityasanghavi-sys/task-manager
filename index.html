@@ -1430,10 +1430,14 @@ function isCurrentWeek(weekStr) {
   if (!weekStr) return true; // Generic fallback
   let s = weekStr.toLowerCase();
   
+  // --- NEW: STRICTLY BLOCK STALE FOLDERS ---
+  if (s.includes('pending update') || s.includes('last week')) return false;
+
   if (s.includes('live data') || s.includes('current')) return true;
 
   const now = new Date();
   const curMonth = now.getMonth(); // 0-indexed
+  // ... (leave the rest of the function exactly as it is) ...
   const months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
   const currentMonthName = months[curMonth];
 
